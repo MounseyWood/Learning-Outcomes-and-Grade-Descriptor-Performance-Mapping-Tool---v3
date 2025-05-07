@@ -21,7 +21,7 @@
             
             /* KU secondary brand colours */
             --ku-blue-dark: #002b49;
-            --ku-blue-light: #009cde;
+            --ku-blue-light: #4DA1D8; /* Adjusted to match screenshot */
             --ku-green: #78be20;
             --ku-yellow: #ffb500;
             --ku-orange: #e35205;
@@ -68,31 +68,40 @@
         
         /* Header band */
         .header-band {
-            border-bottom: 3px solid #aaaaaa;
             background-color: var(--ku-logo-white);
+            text-align: center;
+            padding: 20px 0;
         }
         
-        .header-content {
-            text-align: center;
-            padding-bottom: 20px;
+        .header-content h1 {
+            margin-top: 10px;
+            font-size: 24px;
         }
         
         .logo {
-            max-height: 300px;
+            max-height: 150px;
             margin-bottom: 15px;
             width: auto;
         }
         
-        /* Getting Started band */
+        /* Getting Started band - matching the blue background from screenshot */
         .getting-started-band {
             background-color: var(--ku-blue-light);
             color: var(--ku-logo-white);
+            padding: 30px 0;
         }
         
         .getting-started-content {
             max-width: 1000px;
+            margin: 0 auto;
         }
         
+        .getting-started-content h2,
+        .getting-started-content h3 {
+            color: var(--ku-logo-white);
+        }
+        
+        /* Styled step numbers to match the yellow circles in screenshot */
         .getting-started-step {
             margin-bottom: 15px;
             display: flex;
@@ -113,13 +122,14 @@
             flex-shrink: 0;
         }
         
-        /* Note boxes */
+        /* FIXED: Note box with better contrast */
         .note-box {
             background-color: #f9f9f9;
             border-left: 4px solid var(--ksa-yellow);
             padding: 15px;
             margin: 20px 0;
             font-size: 0.95rem;
+            color: #333333; /* Dark text for better contrast */
         }
         
         /* Accessibility helpers */
@@ -162,7 +172,7 @@
             </div>
         </header>
         
-        <!-- Getting Started band -->
+        <!-- Getting Started band - matching style from screenshot -->
         <section class="content-band getting-started-band" aria-labelledby="getting-started-title">
             <div class="band-content getting-started-content">
                 <h2 id="getting-started-title">How to Use the Assessment Profile Tool</h2>
@@ -205,7 +215,12 @@
                     <li>Discuss your profile with peers and tutors in group tutorials</li>
                     <li>Save profiles regularly to track your improvement over time</li>
                 </ul>
-                
+            </div>
+        </section>
+        
+        <!-- Note box placed outside the blue background for better contrast -->
+        <section class="content-band" style="background-color: #f9f9f9; padding: 10px 0;">
+            <div class="band-content">
                 <div class="note-box" role="note">
                     <p><strong>Note:</strong> Look for Examples and Exemplars of Good Work on your Canvas Module Homepage to help you understand what different grade levels look like in practice.</p>
                 </div>
