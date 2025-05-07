@@ -1,1 +1,220 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FN4004 Learning Outcomes Assessment Tool - An interactive tool for understanding and tracking progress in learning outcomes">
+    <title>FN4004 Design Process 1 - Learning Outcomes Assessment Tool</title>
+    
+    <style>
+        /* Base accessibility styles */
+        :root {
+            /* KSA and KU brand colors */
+            --ksa-yellow: #FFF200;
+            --ku-logo-white: #FFFFFF;
+            --ku-logo-black: #1D1D1B;
+            --text-color: #333333;
+            --bg-color: #FFFFFF;
+            --link-color: #0066CC;
+            --border-color: #E5E7EB;
+            --focus-outline: #0066CC;
+            
+            /* KU secondary brand colours */
+            --ku-blue-dark: #002b49;
+            --ku-blue-light: #009cde;
+            --ku-green: #78be20;
+            --ku-yellow: #ffb500;
+            --ku-orange: #e35205;
+            --ku-teal: #77c5d5;
+            --ku-brown: #857550;
+            
+            /* Grade colors - traffic light system */
+            --grade-first-plus: #80FF80;
+            --grade-first: #BFFF80;
+            --grade-upper-second: #FFFF80;
+            --grade-lower-second: #FFE880;
+            --grade-third: #FFCC80;
+            --grade-marginal-fail: #FF9980;
+            --grade-fail: #FF8080;
+        }
+        
+        /* Accessible focus styles */
+        *:focus {
+            outline: 3px solid var(--focus-outline);
+            outline-offset: 2px;
+        }
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        /* Full-width bands approach */
+        .content-band {
+            width: 100%;
+            padding: 30px 0;
+            margin: 0;
+        }
+        
+        .band-content {
+            width: 90%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* Header band */
+        .header-band {
+            border-bottom: 3px solid #aaaaaa;
+            background-color: var(--ku-logo-white);
+        }
+        
+        .header-content {
+            text-align: center;
+            padding-bottom: 20px;
+        }
+        
+        .logo {
+            max-height: 300px;
+            margin-bottom: 15px;
+            width: auto;
+        }
+        
+        /* Getting Started band */
+        .getting-started-band {
+            background-color: var(--ku-blue-light);
+            color: var(--ku-logo-white);
+        }
+        
+        .getting-started-content {
+            max-width: 1000px;
+        }
+        
+        .getting-started-step {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            background-color: var(--ksa-yellow);
+            color: var(--ku-logo-black);
+            border-radius: 50%;
+            margin-right: 15px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        /* Note boxes */
+        .note-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid var(--ksa-yellow);
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+        
+        /* Accessibility helpers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+        
+        /* Responsive styles */
+        @media screen and (max-width: 768px) {
+            .band-content {
+                width: 95%;
+            }
+            
+            .logo {
+                max-width: 90%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main wrapper for all content -->
+    <div id="app-wrapper">
+        <!-- Header band -->
+        <header class="content-band header-band" role="banner">
+            <div class="band-content header-content">
+                <img src="Talk_Performance_Mapping_FN4004.png" alt="FN4004 Performance Mapping Tool" class="logo">
+                <h1 id="page-title">FN4004 Design Process 1 - Learning Outcomes Assessment Tool</h1>
+                <p aria-describedby="page-title">
+                    This tool shows what tutors look for at each grade level and how your work aligns with industry standards. Select your performance level for each learning outcome to receive targeted feedback and practical strategies for improvement that bridge academic assessment with professional fashion practice.
+                </p>
+            </div>
+        </header>
+        
+        <!-- Getting Started band -->
+        <section class="content-band getting-started-band" aria-labelledby="getting-started-title">
+            <div class="band-content getting-started-content">
+                <h2 id="getting-started-title">How to Use the Assessment Profile Tool</h2>
+                <p>Welcome to your FN4004 Assessment Profile Tool! This interactive guide helps you understand how your work is assessed and identify areas for improvement.</p>
+                
+                <h3>Four Simple Steps:</h3>
+                
+                <div class="getting-started-step">
+                    <span class="step-number" aria-hidden="true">1</span>
+                    <div>
+                        <strong>Select Your Performance Level:</strong> For each learning outcome, choose the grade band and level that best represents your current work.
+                    </div>
+                </div>
+                
+                <div class="getting-started-step">
+                    <span class="step-number" aria-hidden="true">2</span>
+                    <div>
+                        <strong>Review Your Profile:</strong> The radar chart shows your overall performance across all learning outcomes. Notice which areas are stronger and which need improvement.
+                    </div>
+                </div>
+                
+                <div class="getting-started-step">
+                    <span class="step-number" aria-hidden="true">3</span>
+                    <div>
+                        <strong>Read Detailed Feedback:</strong> Scroll down to see specific feedback for each learning outcome with advice on how to improve.
+                    </div>
+                </div>
+                
+                <div class="getting-started-step">
+                    <span class="step-number" aria-hidden="true">4</span>
+                    <div>
+                        <strong>Save Your Profile:</strong> Click "Save My Assessment Profile" to download your current assessment. Save this to your OneDrive to track your progress over time.
+                    </div>
+                </div>
+                
+                <h3>Tips for Getting the Most from This Tool:</h3>
+                <ul>
+                    <li>Be honest in your self-assessment — this is for your learning, not for grading</li>
+                    <li>Review the examples of good work on your Canvas Module Homepage</li>
+                    <li>Discuss your profile with peers and tutors in group tutorials</li>
+                    <li>Save profiles regularly to track your improvement over time</li>
+                </ul>
+                
+                <div class="note-box" role="note">
+                    <p><strong>Note:</strong> Look for Examples and Exemplars of Good Work on your Canvas Module Homepage to help you understand what different grade levels look like in practice.</p>
+                </div>
+                
+                <p><strong>Need help?</strong> Ask your tutor for guidance during tutorials.</p>
+            </div>
+        </section>
+        
+        <!-- Main assessment tool would follow here in the next phase -->
+    </div>
+</body>
+</html>
