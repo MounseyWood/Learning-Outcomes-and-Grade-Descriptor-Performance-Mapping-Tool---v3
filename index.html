@@ -6,6 +6,7 @@
     <meta name="description" content="FN4004 Learning Outcomes Assessment Tool - An interactive tool for understanding and tracking progress in learning outcomes">
     <title>FN4004 Design Process 1 - Learning Outcomes Assessment Tool</title>
     
+    <!-- Original CSS styles remain unchanged -->
     <style>
         /* Base accessibility styles */
         :root {
@@ -312,27 +313,30 @@
         }
         
         /* Matrix table */
-        .matrix-table {
+        .matrix-table, .comparison-table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
         }
         
-        .matrix-table th, .matrix-table td {
+        .matrix-table th, .matrix-table td,
+        .comparison-table th, .comparison-table td {
             padding: 12px;
             border: 1px solid #ddd;
             text-align: left;
             vertical-align: top;
         }
         
-        .matrix-table th:first-child {
+        .matrix-table th:first-child,
+        .comparison-table th:first-child {
             background-color: #f1f1f1;
             font-weight: bold;
             width: 20%;
             text-align: left !important;
         }
         
-        .matrix-table tr:first-child th {
+        .matrix-table tr:first-child th,
+        .comparison-table tr:first-child th {
             text-align: center;
             padding: 8px;
             color: black;
@@ -351,6 +355,21 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             border-radius: 2px;
+        }
+        
+        /* For improvement analysis */
+        .improvement-positive {
+            color: #52c41a;
+            font-weight: bold;
+        }
+        
+        .improvement-negative {
+            color: #f5222d;
+            font-weight: bold;
+        }
+        
+        .improvement-neutral {
+            color: #666;
         }
         
         /* Accessibility helpers */
@@ -391,6 +410,27 @@
             }
         }
         
+        /* Student name input styling */
+        .student-name-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .student-name-input {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            flex-grow: 1;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 1rem;
+        }
+        
         /* Responsive styles */
         @media screen and (max-width: 768px) {
             .band-content {
@@ -412,6 +452,16 @@
             
             .full-width-button {
                 grid-column: span 1;
+            }
+            
+            .student-name-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .student-name-input {
+                width: 100%;
+                margin-top: 5px;
             }
         }
     </style>
@@ -486,7 +536,22 @@
                 <p><strong>Need help?</strong> Ask your tutor for guidance during tutorials.</p>
             </div>
         </section>
-        
+
+        <!-- NEW: Student Name Input Section -->
+        <section class="content-band" style="background-color: white; padding: 10px 0;">
+            <div class="band-content">
+                <div class="student-name-container">
+                    <label for="student-name" style="margin-right: 15px; font-weight: bold;">Your Name:</label>
+                    <input 
+                        type="text"
+                        id="student-name"
+                        class="student-name-input"
+                        placeholder="Enter your name (optional)"
+                        aria-label="Enter your name for your assessment profile"
+                    >
+                </div>
+            </div>
+        </section>
         <!-- Main assessment tool -->
         <main class="content-band" aria-labelledby="assessment-title">
             <div class="band-content">
@@ -565,15 +630,24 @@
                     <button id="save-profile-btn" class="ku-button" aria-label="Save your assessment profile to your device">
                         Save My Assessment Profile
                     </button>
+                    
+                    <!-- NEW: Load Profile Button -->
+                    <button id="load-profile-btn" class="ku-button" aria-label="Load a previously saved assessment profile">
+                        Load Previous Assessment
+                    </button>
+                    
                     <button id="compare-profiles-btn" class="ku-button" disabled style="opacity: 0.5;" aria-label="Compare with previous assessments" aria-disabled="true">
                         Compare with Previous Assessments
                     </button>
+                    
                     <button id="print-summary-btn" class="ku-button" aria-label="Print assessment summary">
                         Print Assessment Summary
                     </button>
+                    
                     <button id="matrix-button" class="ku-button" aria-label="View complete grade descriptor matrix">
                         Complete FN4004 Grade Descriptor Matrix
                     </button>
+                    
                     <a 
                         href="https://canvas.kingston.ac.uk/courses/8255/pages/7-fairness-in-assessment" 
                         class="ku-button"
@@ -583,6 +657,7 @@
                     >
                         Fairness in Assessment
                     </a>
+                    
                     <a 
                         href="https://kingstonuniversity.sharepoint.com/sites/mykingston/mysupport/myskills/Pages/default.aspx" 
                         class="ku-button"
@@ -592,6 +667,7 @@
                     >
                         Support for Building Academic Skills
                     </a>
+                    
                     <a 
                         href="https://canvas.kingston.ac.uk/courses/32501" 
                         class="ku-button full-width-button"
@@ -620,6 +696,9 @@
                 </div>
             </div>
         </main>
+
+        <!-- NEW: Hidden file input for profile upload -->
+        <input type="file" id="profile-upload" accept=".json" style="display: none;" aria-hidden="true">
         
         <!-- Grade Descriptor Matrix Modal with LO6 added -->
         <div id="matrix-modal" class="modal" role="dialog" aria-labelledby="matrix-title" aria-modal="true" aria-hidden="true">
@@ -717,7 +796,7 @@
             </div>
         </div>
         
-        <!-- Compare Profiles Modal with improved accessibility -->
+        <!-- Compare Profiles Modal with improved accessibility and student name column -->
         <div id="compare-modal" class="modal" role="dialog" aria-labelledby="compare-title" aria-modal="true" aria-hidden="true">
             <div class="modal-content">
                 <button type="button" class="close-modal" id="close-compare" aria-label="Close comparison">&times;</button>
@@ -732,8 +811,8 @@
                     <div id="has-profiles">
                         <div style="margin-bottom: 20px;">
                             <h3>Progress Over Time</h3>
-                            <div style="background-color: #f9fafb; padding: 16px; border-radius: 2px;">
-                                <table id="progress-table" class="compare-table">
+                            <div style="background-color: #f9fafb; padding: 16px; border-radius: 2px; overflow-x: auto;">
+                                <table id="progress-table" class="comparison-table">
                                     <!-- Progress table content will be generated here by JavaScript -->
                                 </table>
                             </div>
@@ -757,1569 +836,1096 @@
             </div>
         </div>
     </div>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Learning outcomes data
-            const learningOutcomes = [
-                {
-                    id: 'outcome1',
-                    title: 'LO1: Research for Creative Design',
-                    description: 'Use research sources as a basis for creative design by exploring, evaluating and originating ideas into contemporary fashion concepts.',
-                    framework: 'Research and Analysis',
-                    feedback: {
-                        'first-plus': {
-                            strength: "Your work shows outstanding and exceptional use of research sources that go far beyond requirements, showcasing unique insights and original thinking.",
-                            evidence: "While your research is excellent, you could explore even more unconventional sources that challenge established design paradigms. Consider investigating interdisciplinary connections that might further push the boundaries of fashion concepts.",
-                            improvement: "Continue developing your exceptional research approach by exploring even more specialized or interdisciplinary sources that could further push fashion boundaries."
-                        },
-                        'first': {
-                            strength: "Your work shows excellent use of research sources with deep understanding and creative application to design development.",
-                            evidence: "Your research could benefit from more diverse or unexpected sources beyond conventional fashion references. Work on developing a more distinctive critical voice when analyzing sources and be more explicit about your analytical process in your documentation.",
-                            improvement: "To reach A+ level, push your research beyond the expected sources and demonstrate more innovative connections between research and design concepts."
-                        },
-                        'upper-second': {
-                            strength: "Your work shows good ability to use research sources as a foundation for creative design work with solid evaluation skills.",
-                            evidence: "Your research sources are somewhat predictable and your analysis needs more depth. Challenge yourself to explore beyond obvious references and develop a more rigorous methodology for analyzing sources. More explicit connections between research and design concepts would strengthen your work.",
-                            improvement: "Deepen your critical analysis of research sources and show more creative connections between research and design development to move toward a First."
-                        },
-                        'lower-second': {
-                            strength: "Your work shows satisfactory use of research sources with some evidence of evaluation and idea development.",
-                            evidence: "Your research is limited to obvious or surface-level sources, and your analysis remains primarily descriptive rather than critical. You need to demonstrate a more methodical approach to research and show clearer evaluation of how research informs design decisions.",
-                            improvement: "Focus on developing stronger analytical skills when evaluating research, and show clearer connections between research and design outcomes."
-                        },
-                        'third': {
-                            strength: "Your work shows adequate use of research sources with basic understanding of how to apply them to design.",
-                            evidence: "Your research is minimal and lacks variety, with little evidence of analysis beyond description. You need to significantly expand the range of sources consulted and develop a framework for evaluating their relevance to your design work.",
-                            improvement: "Expand your research beyond obvious sources and develop your analytical skills to evaluate research more critically."
-                        },
-                        'marginal-fail': {
-                            strength: "Your work shows limited understanding of how to use research sources for design development.",
-                            evidence: "Your research is severely inadequate in scope and depth, with little to no analysis evident. There is minimal connection between the limited research presented and your design concepts. A structured approach to research collection and analysis is notably absent.",
-                            improvement: "Build a more structured approach to research, gathering more diverse sources and practice analyzing them in relation to your design ideas."
-                        },
-                        'fail': {
-                            strength: "Your work shows very little evidence of research informing design work.",
-                            evidence: "There is almost no identifiable research in your work, or research that is present is irrelevant to your design concepts. You need to understand the fundamental purpose of research within the design process and develop basic skills in sourcing and analyzing information.",
-                            improvement: "Develop a basic understanding of research methods and how to apply research to inform design decisions and concepts."
-                        }
-                    }
-                },
-                {
-                    id: 'outcome2',
-                    title: 'LO2: Design Development Process',
-                    description: 'Creatively generate, collate and record information appropriate to the design development process.',
-                    framework: 'Experimentation and Practice',
-                    feedback: {
-                        'first-plus': {
-                            strength: "Your work shows exceptional confidence and creativity in generating, organizing, and documenting design development.",
-                            evidence: "While your documentation is excellent, you could experiment with even more innovative approaches to recording your process. Consider developing a more personalized documentation system that captures nuances of your creative thinking that conventional methods might miss.",
-                            improvement: "Continue your excellent practice, perhaps exploring even more innovative methods of recording and presenting your design process."
-                        },
-                        'first': {
-                            strength: "Your work shows excellent ability to confidently generate creative ideas and record them effectively throughout the design process.",
-                            evidence: "Your documentation follows relatively conventional formats. Challenge yourself to develop more innovative or unexpected ways of capturing your design journey. The organization of information could be more strategic to highlight the critical moments in your development process.",
-                            improvement: "To reach A+ level, experiment with more innovative or unexpected methods of recording your design process and organizing information."
-                        },
-                        'upper-second': {
-                            strength: "Your work shows good confidence in generating and recording design ideas with clear progression.",
-                            evidence: "Your process documentation lacks creative presentation and distinctive organization. There are gaps in your developmental journey that limit understanding of key decision points. More consistent and thorough documentation would better demonstrate your creative thinking process.",
-                            improvement: "Work on developing more creative approaches to recording your design process and show more confidence in pursuing original ideas."
-                        },
-                        'lower-second': {
-                            strength: "Your work shows satisfactory ability to generate and record design information with some creative elements.",
-                            evidence: "Your documentation is inconsistent and lacks clarity in showing progression of ideas. The organizational structure is basic and doesn't effectively highlight development of concepts. Design decisions often appear without clear rationale or developmental stages.",
-                            improvement: "Improve the creativity and clarity in how you document your design process, showing more thoughtful organization and progression of ideas."
-                        },
-                        'third': {
-                            strength: "Your work shows basic ability to generate and record design ideas.",
-                            evidence: "Your documentation is minimal and disorganized, making it difficult to follow your design journey. You frequently omit critical developmental stages, and your recording methods lack variety. There is little evidence of reflection on process or methodology.",
-                            improvement: "Develop a more structured approach to organizing your portfolio and experiment with more creative ways to record your design process."
-                        },
-                        'marginal-fail': {
-                            strength: "Your work shows limited ability to generate or record design information.",
-                            evidence: "Your documentation is severely insufficient, with significant gaps that make it impossible to understand how ideas developed. Recording methods are rudimentary with no evidence of organization or methodology. Design decisions appear arbitrary with no visible development process.",
-                            improvement: "Practice basic methods of recording design development and organizing information in a logical sequence."
-                        },
-                        'fail': {
-                            strength: "Your work shows insufficient evidence of generating or recording design information.",
-                            evidence: "There is almost no documentation of your design process or it is so chaotic that no progression can be discerned. You need to understand the fundamental importance of recording design development and develop basic organizational systems for your work.",
-                            improvement: "Learn and apply fundamental principles of documenting design development and organizing information appropriately."
-                        }
-                    }
-                },
-                {
-                    id: 'outcome3',
-                    title: 'LO3: Material Understanding',
-                    description: 'Demonstrate an understanding of material qualities and evaluate their application and appropriateness to design outcomes.',
-                    framework: 'Experimentation and Practice',
-                    feedback: {
-                        'first-plus': {
-                            strength: "Your work shows outstanding understanding of materials with exceptional ability to evaluate their qualities for innovative design applications.",
-                            evidence: "To further develop your excellent material knowledge, you could explore more speculative applications that challenge conventional thinking about materials. Consider investigating emerging sustainable materials and processes that push the boundaries of current practice.",
-                            improvement: "Continue your exceptional material investigations, perhaps exploring even more sustainable or cutting-edge materials."
-                        },
-                        'first': {
-                            strength: "Your work shows excellent understanding of material qualities with very good evaluation skills for design outcomes.",
-                            evidence: "Your material investigations could be more experimental and risk-taking. While you demonstrate good technical knowledge, you need to push boundaries with more innovative applications and more comprehensive testing of material limitations and possibilities.",
-                            improvement: "To reach A+ level, deepen your exploration of material innovation and consider more experimental applications in your designs."
-                        },
-                        'upper-second': {
-                            strength: "Your work shows good understanding of material qualities with solid evaluation of their design applications.",
-                            evidence: "Your material exploration remains relatively safe and predictable. You need to conduct more thorough testing of properties and investigate unconventional applications. Your evaluation criteria should be more sophisticated, considering factors beyond the obvious functional and aesthetic properties.",
-                            improvement: "Develop a more sophisticated understanding of material properties and experiment with more creative or unexpected applications."
-                        },
-                        'lower-second': {
-                            strength: "Your work shows satisfactory understanding of materials with some evaluation of their design applications.",
-                            evidence: "Your material investigations are superficial and lack methodical testing. You often select materials based on limited criteria without proper consideration of alternatives. Your evaluation needs to be more systematic and consider a broader range of properties relevant to your design intentions.",
-                            improvement: "Enhance your material investigation with more in-depth analysis of properties and more thoughtful consideration of design applications."
-                        },
-                        'third': {
-                            strength: "Your work shows basic understanding of materials with limited evaluation of their design applications.",
-                            evidence: "Your knowledge of materials is very limited, with minimal evidence of testing or exploration. You often make inappropriate material choices that don't align with your design intentions. Your evaluation lacks structure and fails to consider essential properties like durability, sustainability, or fabrication requirements.",
-                            improvement: "Develop a more structured approach to investigating materials and practice evaluating their properties for specific design outcomes."
-                        },
-                        'marginal-fail': {
-                            strength: "Your work shows limited understanding of materials with very little evaluation.",
-                            evidence: "Your work shows significant gaps in basic material knowledge and almost no evidence of testing or exploration. Material selections appear arbitrary and unsuitable for your design intentions. You need to develop fundamental understanding of how material properties affect design outcomes.",
-                            improvement: "Build basic knowledge of material properties and practice simple evaluation techniques for design applications."
-                        },
-                        'fail': {
-                            strength: "Your work shows very little evidence of material understanding or evaluation.",
-                            evidence: "There is almost no evidence of material consideration in your work. You need to develop awareness of even the most basic material properties and how they relate to design applications. Your work lacks any coherent approach to material selection or evaluation.",
-                            improvement: "Learn fundamental principles of material properties and how they relate to design outcomes."
-                        }
-                    }
-                },
-                {
-                    id: 'outcome4',
-                    title: 'LO4: Historical & Ethical Research',
-                    description: 'Advance research into creative concepts that recognise historical and/or ethical and social considerations.',
-                    framework: 'Research and Analysis',
-                    feedback: {
-                        'first-plus': {
-                            strength: "Your work shows exceptional ability to research creative concepts with outstanding recognition of historical, ethical, and social contexts.",
-                            evidence: "To further develop your excellent contextual understanding, you could engage more deeply with emerging ethical debates within fashion, such as labor practices and cultural appropriation. Consider more critically examining power dynamics and privilege within historical fashion narratives.",
-                            improvement: "Continue your excellent contextual research, perhaps exploring even more nuanced ethical or cultural considerations in fashion."
-                        },
-                        'first': {
-                            strength: "Your work shows excellent research into creative concepts with strong historical, ethical, and social awareness.",
-                            evidence: "Your contextual research could be more challenging of established narratives. While you make good connections to ethical considerations, your analysis could be more critical of power structures and privilege within fashion's historical and contemporary contexts. More explicit integration of ethical considerations into your design thinking is needed.",
-                            improvement: "To reach A+ level, develop even deeper insights into historical contexts or ethical considerations that challenge conventional thinking."
-                        },
-                        'upper-second': {
-                            strength: "Your work shows good research with clear recognition of historical and ethical considerations.",
-                            evidence: "Your historical and ethical research remains somewhat superficial, addressing obvious issues without deeper critical analysis. You need to move beyond describing ethical concerns to analyzing their implications for design practice. Your understanding of historical contexts would benefit from more nuanced consideration of social and cultural factors.",
-                            improvement: "Deepen your exploration of historical and ethical contexts and show more sophisticated integration into your creative concepts."
-                        },
-                        'lower-second': {
-                            strength: "Your work shows satisfactory research with some recognition of historical and ethical considerations.",
-                            evidence: "Your contextual research is limited and often disconnected from your design work. You demonstrate only basic awareness of ethical considerations without meaningful analysis. Historical references are used in a descriptive rather than analytical way, with limited understanding of their contexts.",
-                            improvement: "Strengthen your research into historical and ethical contexts and make clearer connections to your design development."
-                        },
-                        'third': {
-                            strength: "Your work shows basic research with limited recognition of historical or ethical considerations.",
-                            evidence: "Your work shows minimal acknowledgment of historical or ethical contexts, with significant gaps in understanding. Connections between contextual research and design concepts are weak or missing. You need to develop a more structured approach to investigating these areas and their relevance to fashion design.",
-                            improvement: "Develop a more structured approach to researching historical and ethical contexts and practice applying these to your design work."
-                        },
-                        'marginal-fail': {
-                            strength: "Your work shows limited research with minimal recognition of historical or ethical considerations.",
-                            evidence: "Your work demonstrates very little awareness of historical contexts or ethical implications in fashion. There are major gaps in understanding basic concepts relevant to responsible design practice. You need to develop foundational knowledge of how fashion operates within broader historical, social, and ethical frameworks.",
-                            improvement: "Build basic understanding of how historical and ethical considerations influence fashion design and practice incorporating these into your research."
-                        },
-                        'fail': {
-                            strength: "Your work shows very little evidence of research into historical or ethical considerations.",
-                            evidence: "There is almost no acknowledgment of historical contexts or ethical considerations in your work. You need to develop awareness of even the most basic historical references or ethical concerns in fashion practice. Your work exists in isolation from broader contextual frameworks.",
-                            improvement: "Learn fundamental principles of historical and ethical research in fashion and begin to incorporate these into your design thinking."
-                        }
-                    }
-                },
-                {
-                    id: 'outcome5',
-                    title: 'LO5: Design Communication',
-                    description: 'Communicate design outcomes using a variety of traditional and contemporary methods appropriate to professional contexts.',
-                    framework: 'Communication and Presentation',
-                    feedback: {
-                        'first-plus': {
-                            strength: "Your work shows outstanding communication of design outcomes using exceptionally skilled and innovative methods.",
-                            evidence: "While your communication skills are excellent, you could experiment with even more cutting-edge presentation techniques that challenge industry conventions. Consider how emerging technologies or alternative platforms might further enhance the communication of your concepts.",
-                            improvement: "Continue exploring cutting-edge communication methods while maintaining your exceptional standard of presentation."
-                        },
-                        'first': {
-                            strength: "Your work shows excellent communication of design outcomes using highly skilled traditional and contemporary methods.",
-                            evidence: "Your presentation methods, while effective, could be more innovative or unexpected. You need to push boundaries in how you communicate your ideas, exploring techniques that might better capture the unique aspects of your design thinking. Consider more carefully how your presentation strategy aligns with your design philosophy.",
-                            improvement: "To reach A+ level, experiment with more innovative or unexpected communication methods that push boundaries while maintaining clarity."
-                        },
-                        'upper-second': {
-                            strength: "Your work shows good communication of design outcomes with skillful use of appropriate methods.",
-                            evidence: "Your presentation techniques are relatively conventional and safe. You need to develop more variety in your communication methods and ensure more consistent quality across all elements. Your consideration of audience needs and context could be more sophisticated to ensure maximum impact.",
-                            improvement: "Develop more creative and sophisticated communication techniques and ensure consistent professional quality throughout."
-                        },
-                        'lower-second': {
-                            strength: "Your work shows satisfactory communication of design outcomes using appropriate methods.",
-                            evidence: "Your communication lacks refinement and creativity, with inconsistent quality across different elements. Your choice of presentation methods often doesn't align well with your design concepts or target audience. Technical execution needs improvement to meet professional standards.",
-                            improvement: "Improve the consistency and creativity of your communication methods, paying more attention to professional presentation standards."
-                        },
-                        'third': {
-                            strength: "Your work shows basic communication of design outcomes with limited method variety.",
-                            evidence: "Your presentation skills are underdeveloped, with poor technical execution and limited variety in methods. You show little awareness of audience needs or professional contexts. Your communication fails to effectively convey the intent behind your designs or key aspects of your concepts.",
-                            improvement: "Develop a wider range of communication techniques and practice applying them to present your ideas more professionally."
-                        },
-                        'marginal-fail': {
-                            strength: "Your work shows limited ability to communicate design outcomes effectively.",
-                            evidence: "Your presentation is significantly below the standard expected at this level, with major technical flaws and inappropriate choice of methods. Your communication fails to convey basic information about your designs. You show minimal understanding of professional presentation requirements.",
-                            improvement: "Learn and practice basic presentation techniques and focus on clearly communicating your design intentions."
-                        },
-                        'fail': {
-                            strength: "Your work shows very little evidence of ability to communicate design outcomes.",
-                            evidence: "There is almost no effective communication of your design concepts. Your presentation lacks even the most basic organization or technical competence. You need to develop fundamental understanding of how to present design work to others in a clear and accessible way.",
-                            improvement: "Develop fundamental communication skills and learn standard methods for presenting fashion design work."
-                        }
-                    }
-                },
-                {
-                    id: 'outcome6',
-                    title: 'LO6: Personal & Professional Development',
-                    description: 'Demonstrate effective planning, time-management, commitment & subject engagement, including the ability to work independently and collaboratively.',
-                    framework: 'Personal and Professional Development',
-                    feedback: {
-                        'first-plus': {
-                            strength: "Your work shows exceptional commitment and self-management with outstanding professional conduct.",
-                            evidence: "While your professional approach is excellent, you could develop more advanced leadership skills within collaborative contexts. Consider how you might further mentor peers or facilitate knowledge exchange within your cohort as part of your professional development.",
-                            improvement: "Continue to develop your excellent professional approach by taking on leadership roles and mentoring others."
-                        },
-                        'first': {
-                            strength: "Your work shows excellent commitment and self-management with very strong professional conduct.",
-                            evidence: "Your approach to teamwork could be more proactive, particularly in leadership contexts. You need to develop more advanced strategies for managing complex projects and navigating challenging collaborative dynamics. Your reflection on your own professional development could be more structured and forward-looking.",
-                            improvement: "To reach A+ level, develop your leadership skills and demonstrate more initiative in group contexts."
-                        },
-                        'upper-second': {
-                            strength: "Your work shows good commitment and self-management with consistent professional conduct.",
-                            evidence: "Your time management and planning needs improvement, particularly for complex projects. You need to develop more effective strategies for balancing competing priorities and managing setbacks. Your ability to respond constructively to feedback and incorporate it into your work is inconsistent.",
-                            improvement: "Work on developing more consistent self-reflection and planning skills to enhance your professional approach."
-                        },
-                        'lower-second': {
-                            strength: "Your work shows satisfactory commitment and self-management with adequate professional conduct.",
-                            evidence: "Your professional approach lacks consistency, with evidence of poor planning and time management affecting project outcomes. Your engagement with feedback is superficial, and you struggle to effectively incorporate critiques into your work. In collaborative contexts, your contribution is minimal or inconsistent.",
-                            improvement: "Improve your planning and self-management skills, and demonstrate more consistent engagement throughout projects."
-                        },
-                        'third': {
-                            strength: "Your work shows basic commitment and self-management with developing professional conduct.",
-                            evidence: "Your approach to planning and time management is significantly underdeveloped, leading to incomplete work or rushed execution. You show limited engagement with the subject beyond minimum requirements. Your ability to work effectively in teams is hampered by poor communication or unreliability.",
-                            improvement: "Develop basic planning and organizational strategies, and practice applying them consistently to your work."
-                        },
-                        'marginal-fail': {
-                            strength: "Your work shows limited commitment and poor self-management with minimal professional conduct.",
-                            evidence: "Your work demonstrates serious deficiencies in planning and time management, with deadlines frequently missed or work substantially incomplete. There is little evidence of engagement with the subject or feedback. Your approach to collaborative work is problematic, affecting team dynamics or outcomes.",
-                            improvement: "Learn fundamental time management and planning techniques and begin to apply them to your work processes."
-                        },
-                        'fail': {
-                            strength: "Your work shows insufficient commitment and self-management with lack of professional conduct.",
-                            evidence: "There is almost no evidence of planning or time management in your work. Your engagement with the subject is minimal or absent. You need to develop basic understanding of professional expectations within educational and industry contexts, including reliability, communication, and personal responsibility.",
-                            improvement: "Develop basic understanding of professional conduct and time management for academic and design work."
-                        }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Learning outcomes data
+        const learningOutcomes = [
+            {
+                id: 'outcome1',
+                title: 'LO1: Research for Creative Design',
+                description: 'Use research sources as a basis for creative design by exploring, evaluating and originating ideas into contemporary fashion concepts.',
+                framework: 'Research and Analysis',
+                feedback: {
+                    'first-plus': {
+                        strength: "Your work shows outstanding and exceptional use of research sources that go far beyond requirements, showcasing unique insights and original thinking.",
+                        evidence: "While your research is excellent, you could explore even more unconventional sources that challenge established design paradigms. Consider investigating interdisciplinary connections that might further push the boundaries of fashion concepts.",
+                        improvement: "Continue developing your exceptional research approach by exploring even more specialized or interdisciplinary sources that could further push fashion boundaries."
+                    },
+                    'first': {
+                        strength: "Your work shows excellent use of research sources with deep understanding and creative application to design development.",
+                        evidence: "Your research could benefit from more diverse or unexpected sources beyond conventional fashion references. Work on developing a more distinctive critical voice when analyzing sources and be more explicit about your analytical process in your documentation.",
+                        improvement: "To reach A+ level, push your research beyond the expected sources and demonstrate more innovative connections between research and design concepts."
+                    },
+                    'upper-second': {
+                        strength: "Your work shows good ability to use research sources as a foundation for creative design work with solid evaluation skills.",
+                        evidence: "Your research sources are somewhat predictable and your analysis needs more depth. Challenge yourself to explore beyond obvious references and develop a more rigorous methodology for analyzing sources. More explicit connections between research and design concepts would strengthen your work.",
+                        improvement: "Deepen your critical analysis of research sources and show more creative connections between research and design development to move toward a First."
+                    },
+                    'lower-second': {
+                        strength: "Your work shows satisfactory use of research sources with some evidence of evaluation and idea development.",
+                        evidence: "Your research is limited to obvious or surface-level sources, and your analysis remains primarily descriptive rather than critical. You need to demonstrate a more methodical approach to research and show clearer evaluation of how research informs design decisions.",
+                        improvement: "Focus on developing stronger analytical skills when evaluating research, and show clearer connections between research and design outcomes."
+                    },
+                    'third': {
+                        strength: "Your work shows adequate use of research sources with basic understanding of how to apply them to design.",
+                        evidence: "Your research is minimal and lacks variety, with little evidence of analysis beyond description. You need to significantly expand the range of sources consulted and develop a framework for evaluating their relevance to your design work.",
+                        improvement: "Expand your research beyond obvious sources and develop your analytical skills to evaluate research more critically."
+                    },
+                    'marginal-fail': {
+                        strength: "Your work shows limited understanding of how to use research sources for design development.",
+                        evidence: "Your research is severely inadequate in scope and depth, with little to no analysis evident. There is minimal connection between the limited research presented and your design concepts. A structured approach to research collection and analysis is notably absent.",
+                        improvement: "Build a more structured approach to research, gathering more diverse sources and practice analyzing them in relation to your design ideas."
+                    },
+                    'fail': {
+                        strength: "Your work shows very little evidence of research informing design work.",
+                        evidence: "There is almost no identifiable research in your work, or research that is present is irrelevant to your design concepts. You need to understand the fundamental purpose of research within the design process and develop basic skills in sourcing and analyzing information.",
+                        improvement: "Develop a basic understanding of research methods and how to apply research to inform design decisions and concepts."
                     }
                 }
-            ];
-            
-            // Grade bands data with step marking
-            const gradeBands = [
-                { 
-                    id: 'first-plus', 
-                    title: 'Distinction', 
-                    options: [
-                        { value: '98%', label: 'High (98%)' },
-                        { value: '95%', label: 'Mid (95%)' },
-                        { value: '92%', label: 'Low (92%)' }
-                    ],
-                    range: '85% and above', 
-                    quality: 'Outstanding', 
-                    color: '#80FF80', 
-                    letterGrade: 'A+' 
-                },
-                { 
-                    id: 'first', 
-                    title: 'First Class', 
-                    options: [
-                        { value: '82%', label: 'High (82%)' },
-                        { value: '78%', label: 'Mid (78%)' },
-                        { value: '72%', label: 'Low (72%)' }
-                    ],
-                    range: '70-84%', 
-                    quality: 'Very Good', 
-                    color: '#BFFF80', 
-                    letterGrade: 'A' 
-                },
-                { 
-                    id: 'upper-second', 
-                    title: 'Upper Second (2:1)', 
-                    options: [
-                        { value: '68%', label: 'High (68%)' },
-                        { value: '65%', label: 'Mid (65%)' },
-                        { value: '62%', label: 'Low (62%)' }
-                    ],
-                    range: '60-69%', 
-                    quality: 'Good', 
-                    color: '#FFFF80', 
-                    letterGrade: 'B' 
-                },
-                { 
-                    id: 'lower-second', 
-                    title: 'Lower Second (2:2)', 
-                    options: [
-                        { value: '58%', label: 'High (58%)' },
-                        { value: '55%', label: 'Mid (55%)' },
-                        { value: '52%', label: 'Low (52%)' }
-                    ],
-                    range: '50-59%', 
-                    quality: 'Satisfactory', 
-                    color: '#FFE880', 
-                    letterGrade: 'C' 
-                },
-                { 
-                    id: 'third', 
-                    title: 'Third Class', 
-                    options: [
-                        { value: '48%', label: 'High (48%)' },
-                        { value: '45%', label: 'Mid (45%)' },
-                        { value: '42%', label: 'Low (42%)' }
-                    ],
-                    range: '40-49%', 
-                    quality: 'Adequate', 
-                    color: '#FFCC80', 
-                    letterGrade: 'D' 
-                },
-                { 
-                    id: 'marginal-fail', 
-                    title: 'Marginal Fail', 
-                    options: [
-                        { value: '38%', label: 'High (38%)' },
-                        { value: '35%', label: 'Low (35%)' }
-                    ],
-                    range: '35-39%', 
-                    quality: 'Unsatisfactory', 
-                    color: '#FF9980', 
-                    letterGrade: 'FM' 
-                },
-                { 
-                    id: 'fail', 
-                    title: 'Fail', 
-                    options: [
-                        { value: '32%', label: 'High (32%)' },
-                        { value: '25%', label: 'Mid (25%)' },
-                        { value: '15%', label: 'Low (15%)' }
-                    ],
-                    range: '0-34%', 
-                    quality: 'Poor', 
-                    color: '#FF8080', 
-                    letterGrade: 'F' 
+            },
+            {
+                id: 'outcome2',
+                title: 'LO2: Design Development Process',
+                description: 'Creatively generate, collate and record information appropriate to the design development process.',
+                framework: 'Experimentation and Practice',
+                feedback: {
+                    'first-plus': {
+                        strength: "Your work shows exceptional confidence and creativity in generating, organizing, and documenting design development.",
+                        evidence: "While your documentation is excellent, you could experiment with even more innovative approaches to recording your process. Consider developing a more personalized documentation system that captures nuances of your creative thinking that conventional methods might miss.",
+                        improvement: "Continue your excellent practice, perhaps exploring even more innovative methods of recording and presenting your design process."
+                    },
+                    'first': {
+                        strength: "Your work shows excellent ability to confidently generate creative ideas and record them effectively throughout the design process.",
+                        evidence: "Your documentation follows relatively conventional formats. Challenge yourself to develop more innovative or unexpected ways of capturing your design journey. The organization of information could be more strategic to highlight the critical moments in your development process.",
+                        improvement: "To reach A+ level, experiment with more innovative or unexpected methods of recording your design process and organizing information."
+                    },
+                    'upper-second': {
+                        strength: "Your work shows good confidence in generating and recording design ideas with clear progression.",
+                        evidence: "Your process documentation lacks creative presentation and distinctive organization. There are gaps in your developmental journey that limit understanding of key decision points. More consistent and thorough documentation would better demonstrate your creative thinking process.",
+                        improvement: "Work on developing more creative approaches to recording your design process and show more confidence in pursuing original ideas."
+                    },
+                    'lower-second': {
+                        strength: "Your work shows satisfactory ability to generate and record design information with some creative elements.",
+                        evidence: "Your documentation is inconsistent and lacks clarity in showing progression of ideas. The organizational structure is basic and doesn't effectively highlight development of concepts. Design decisions often appear without clear rationale or developmental stages.",
+                        improvement: "Improve the creativity and clarity in how you document your design process, showing more thoughtful organization and progression of ideas."
+                    },
+                    'third': {
+                        strength: "Your work shows basic ability to generate and record design ideas.",
+                        evidence: "Your documentation is minimal and disorganized, making it difficult to follow your design journey. You frequently omit critical developmental stages, and your recording methods lack variety. There is little evidence of reflection on process or methodology.",
+                        improvement: "Develop a more structured approach to organizing your portfolio and experiment with more creative ways to record your design process."
+                    },
+                    'marginal-fail': {
+                        strength: "Your work shows limited ability to generate or record design information.",
+                        evidence: "Your documentation is severely insufficient, with significant gaps that make it impossible to understand how ideas developed. Recording methods are rudimentary with no evidence of organization or methodology. Design decisions appear arbitrary with no visible development process.",
+                        improvement: "Practice basic methods of recording design development and organizing information in a logical sequence."
+                    },
+                    'fail': {
+                        strength: "Your work shows insufficient evidence of generating or recording design information.",
+                        evidence: "There is almost no documentation of your design process or it is so chaotic that no progression can be discerned. You need to understand the fundamental importance of recording design development and develop basic organizational systems for your work.",
+                        improvement: "Learn and apply fundamental principles of documenting design development and organizing information appropriately."
+                    }
                 }
-            ];
-            
-            // Overall improvement advice by grade
-            const overallImprovements = {
-                'fail': [
-                    'Develop basic understanding of research methods and design processes',
-                    'Begin to analyze materials rather than just describing them',
-                    'Improve documentation of your design development process',
-                    'Show evidence of basic material investigation',
-                    'Practice fundamental presentation techniques',
-                    'Develop basic time management and planning skills'
+            },
+            {
+                id: 'outcome3',
+                title: 'LO3: Material Understanding',
+                description: 'Demonstrate an understanding of material qualities and evaluate their application and appropriateness to design outcomes.',
+                framework: 'Experimentation and Practice',
+                feedback: {
+                    'first-plus': {
+                        strength: "Your work shows outstanding understanding of materials with exceptional ability to evaluate their qualities for innovative design applications.",
+                        evidence: "To further develop your excellent material knowledge, you could explore more speculative applications that challenge conventional thinking about materials. Consider investigating emerging sustainable materials and processes that push the boundaries of current practice.",
+                        improvement: "Continue your exceptional material investigations, perhaps exploring even more sustainable or cutting-edge materials."
+                    },
+                    'first': {
+                        strength: "Your work shows excellent understanding of material qualities with very good evaluation skills for design outcomes.",
+                        evidence: "Your material investigations could be more experimental and risk-taking. While you demonstrate good technical knowledge, you need to push boundaries with more innovative applications and more comprehensive testing of material limitations and possibilities.",
+                        improvement: "To reach A+ level, deepen your exploration of material innovation and consider more experimental applications in your designs."
+                    },
+                    'upper-second': {
+                        strength: "Your work shows good understanding of material qualities with solid evaluation of their design applications.",
+                        evidence: "Your material exploration remains relatively safe and predictable. You need to conduct more thorough testing of properties and investigate unconventional applications. Your evaluation criteria should be more sophisticated, considering factors beyond the obvious functional and aesthetic properties.",
+                        improvement: "Develop a more sophisticated understanding of material properties and experiment with more creative or unexpected applications."
+                    },
+                    'lower-second': {
+                        strength: "Your work shows satisfactory understanding of materials with some evaluation of their design applications.",
+                        evidence: "Your material investigations are superficial and lack methodical testing. You often select materials based on limited criteria without proper consideration of alternatives. Your evaluation needs to be more systematic and consider a broader range of properties relevant to your design intentions.",
+                        improvement: "Enhance your material investigation with more in-depth analysis of properties and more thoughtful consideration of design applications."
+                    },
+                    'third': {
+                        strength: "Your work shows basic understanding of materials with limited evaluation of their design applications.",
+                        evidence: "Your knowledge of materials is very limited, with minimal evidence of testing or exploration. You often make inappropriate material choices that don't align with your design intentions. Your evaluation lacks structure and fails to consider essential properties like durability, sustainability, or fabrication requirements.",
+                        improvement: "Develop a more structured approach to investigating materials and practice evaluating their properties for specific design outcomes."
+                    },
+                    'marginal-fail': {
+                        strength: "Your work shows limited understanding of materials with very little evaluation.",
+                        evidence: "Your work shows significant gaps in basic material knowledge and almost no evidence of testing or exploration. Material selections appear arbitrary and unsuitable for your design intentions. You need to develop fundamental understanding of how material properties affect design outcomes.",
+                        improvement: "Build basic knowledge of material properties and practice simple evaluation techniques for design applications."
+                    },
+                    'fail': {
+                        strength: "Your work shows very little evidence of material understanding or evaluation.",
+                        evidence: "There is almost no evidence of material consideration in your work. You need to develop awareness of even the most basic material properties and how they relate to design applications. Your work lacks any coherent approach to material selection or evaluation.",
+                        improvement: "Learn fundamental principles of material properties and how they relate to design outcomes."
+                    }
+                }
+            },
+            {
+                id: 'outcome4',
+                title: 'LO4: Historical & Ethical Research',
+                description: 'Advance research into creative concepts that recognise historical and/or ethical and social considerations.',
+                framework: 'Research and Analysis',
+                feedback: {
+                    'first-plus': {
+                        strength: "Your work shows exceptional ability to research creative concepts with outstanding recognition of historical, ethical, and social contexts.",
+                        evidence: "To further develop your excellent contextual understanding, you could engage more deeply with emerging ethical debates within fashion, such as labor practices and cultural appropriation. Consider more critically examining power dynamics and privilege within historical fashion narratives.",
+                        improvement: "Continue your excellent contextual research, perhaps exploring even more nuanced ethical or cultural considerations in fashion."
+                    },
+                    'first': {
+                        strength: "Your work shows excellent research into creative concepts with strong historical, ethical, and social awareness.",
+                        evidence: "Your contextual research could be more challenging of established narratives. While you make good connections to ethical considerations, your analysis could be more critical of power structures and privilege within fashion's historical and contemporary contexts. More explicit integration of ethical considerations into your design thinking is needed.",
+                        improvement: "To reach A+ level, develop even deeper insights into historical contexts or ethical considerations that challenge conventional thinking."
+                    },
+                    'upper-second': {
+                        strength: "Your work shows good research with clear recognition of historical and ethical considerations.",
+                        evidence: "Your historical and ethical research remains somewhat superficial, addressing obvious issues without deeper critical analysis. You need to move beyond describing ethical concerns to analyzing their implications for design practice. Your understanding of historical contexts would benefit from more nuanced consideration of social and cultural factors.",
+                        improvement: "Deepen your exploration of historical and ethical contexts and show more sophisticated integration into your creative concepts."
+                    },
+                    'lower-second': {
+                        strength: "Your work shows satisfactory research with some recognition of historical and ethical considerations.",
+                        evidence: "Your contextual research is limited and often disconnected from your design work. You demonstrate only basic awareness of ethical considerations without meaningful analysis. Historical references are used in a descriptive rather than analytical way, with limited understanding of their contexts.",
+                        improvement: "Strengthen your research into historical and ethical contexts and make clearer connections to your design development."
+                    },
+                    'third': {
+                        strength: "Your work shows basic research with limited recognition of historical or ethical considerations.",
+                        evidence: "Your work shows minimal acknowledgment of historical or ethical contexts, with significant gaps in understanding. Connections between contextual research and design concepts are weak or missing. You need to develop a more structured approach to investigating these areas and their relevance to fashion design.",
+                        improvement: "Develop a more structured approach to researching historical and ethical contexts and practice applying these to your design work."
+                    },
+                    'marginal-fail': {
+                        strength: "Your work shows limited research with minimal recognition of historical or ethical considerations.",
+                        evidence: "Your work demonstrates very little awareness of historical contexts or ethical implications in fashion. There are major gaps in understanding basic concepts relevant to responsible design practice. You need to develop foundational knowledge of how fashion operates within broader historical, social, and ethical frameworks.",
+                        improvement: "Build basic understanding of how historical and ethical considerations influence fashion design and practice incorporating these into your research."
+                    },
+                    'fail': {
+                        strength: "Your work shows very little evidence of research into historical or ethical considerations.",
+                        evidence: "There is almost no acknowledgment of historical contexts or ethical considerations in your work. You need to develop awareness of even the most basic historical references or ethical concerns in fashion practice. Your work exists in isolation from broader contextual frameworks.",
+                        improvement: "Learn fundamental principles of historical and ethical research in fashion and begin to incorporate these into your design thinking."
+                    }
+                }
+            },
+            {
+                id: 'outcome5',
+                title: 'LO5: Design Communication',
+                description: 'Communicate design outcomes using a variety of traditional and contemporary methods appropriate to professional contexts.',
+                framework: 'Communication and Presentation',
+                feedback: {
+                    'first-plus': {
+                        strength: "Your work shows outstanding communication of design outcomes using exceptionally skilled and innovative methods.",
+                        evidence: "While your communication skills are excellent, you could experiment with even more cutting-edge presentation techniques that challenge industry conventions. Consider how emerging technologies or alternative platforms might further enhance the communication of your concepts.",
+                        improvement: "Continue exploring cutting-edge communication methods while maintaining your exceptional standard of presentation."
+                    },
+                    'first': {
+                        strength: "Your work shows excellent communication of design outcomes using highly skilled traditional and contemporary methods.",
+                        evidence: "Your presentation methods, while effective, could be more innovative or unexpected. You need to push boundaries in how you communicate your ideas, exploring techniques that might better capture the unique aspects of your design thinking. Consider more carefully how your presentation strategy aligns with your design philosophy.",
+                        improvement: "To reach A+ level, experiment with more innovative or unexpected communication methods that push boundaries while maintaining clarity."
+                    },
+                    'upper-second': {
+                        strength: "Your work shows good communication of design outcomes with skillful use of appropriate methods.",
+                        evidence: "Your presentation techniques are relatively conventional and safe. You need to develop more variety in your communication methods and ensure more consistent quality across all elements. Your consideration of audience needs and context could be more sophisticated to ensure maximum impact.",
+                        improvement: "Develop more creative and sophisticated communication techniques and ensure consistent professional quality throughout."
+                    },
+                    'lower-second': {
+                        strength: "Your work shows satisfactory communication of design outcomes using appropriate methods.",
+                        evidence: "Your communication lacks refinement and creativity, with inconsistent quality across different elements. Your choice of presentation methods often doesn't align well with your design concepts or target audience. Technical execution needs improvement to meet professional standards.",
+                        improvement: "Improve the consistency and creativity of your communication methods, paying more attention to professional presentation standards."
+                    },
+                    'third': {
+                        strength: "Your work shows basic communication of design outcomes with limited method variety.",
+                        evidence: "Your presentation skills are underdeveloped, with poor technical execution and limited variety in methods. You show little awareness of audience needs or professional contexts. Your communication fails to effectively convey the intent behind your designs or key aspects of your concepts.",
+                        improvement: "Develop a wider range of communication techniques and practice applying them to present your ideas more professionally."
+                    },
+                    'marginal-fail': {
+                        strength: "Your work shows limited ability to communicate design outcomes effectively.",
+                        evidence: "Your presentation is significantly below the standard expected at this level, with major technical flaws and inappropriate choice of methods. Your communication fails to convey basic information about your designs. You show minimal understanding of professional presentation requirements.",
+                        improvement: "Learn and practice basic presentation techniques and focus on clearly communicating your design intentions."
+                    },
+                    'fail': {
+                        strength: "Your work shows very little evidence of ability to communicate design outcomes.",
+                        evidence: "There is almost no effective communication of your design concepts. Your presentation lacks even the most basic organization or technical competence. You need to develop fundamental understanding of how to present design work to others in a clear and accessible way.",
+                        improvement: "Develop fundamental communication skills and learn standard methods for presenting fashion design work."
+                    }
+                }
+            },
+            {
+                id: 'outcome6',
+                title: 'LO6: Personal & Professional Development',
+                description: 'Demonstrate effective planning, time-management, commitment & subject engagement, including the ability to work independently and collaboratively.',
+                framework: 'Personal and Professional Development',
+                feedback: {
+                    'first-plus': {
+                        strength: "Your work shows exceptional commitment and self-management with outstanding professional conduct.",
+                        evidence: "While your professional approach is excellent, you could develop more advanced leadership skills within collaborative contexts. Consider how you might further mentor peers or facilitate knowledge exchange within your cohort as part of your professional development.",
+                        improvement: "Continue to develop your excellent professional approach by taking on leadership roles and mentoring others."
+                    },
+                    'first': {
+                        strength: "Your work shows excellent commitment and self-management with very strong professional conduct.",
+                        evidence: "Your approach to teamwork could be more proactive, particularly in leadership contexts. You need to develop more advanced strategies for managing complex projects and navigating challenging collaborative dynamics. Your reflection on your own professional development could be more structured and forward-looking.",
+                        improvement: "To reach A+ level, develop your leadership skills and demonstrate more initiative in group contexts."
+                    },
+                    'upper-second': {
+                        strength: "Your work shows good commitment and self-management with consistent professional conduct.",
+                        evidence: "Your time management and planning needs improvement, particularly for complex projects. You need to develop more effective strategies for balancing competing priorities and managing setbacks. Your ability to respond constructively to feedback and incorporate it into your work is inconsistent.",
+                        improvement: "Work on developing more consistent self-reflection and planning skills to enhance your professional approach."
+                    },
+                    'lower-second': {
+                        strength: "Your work shows satisfactory commitment and self-management with adequate professional conduct.",
+                        evidence: "Your professional approach lacks consistency, with evidence of poor planning and time management affecting project outcomes. Your engagement with feedback is superficial, and you struggle to effectively incorporate critiques into your work. In collaborative contexts, your contribution is minimal or inconsistent.",
+                        improvement: "Improve your planning and self-management skills, and demonstrate more consistent engagement throughout projects."
+                    },
+                    'third': {
+                        strength: "Your work shows basic commitment and self-management with developing professional conduct.",
+                        evidence: "Your approach to planning and time management is significantly underdeveloped, leading to incomplete work or rushed execution. You show limited engagement with the subject beyond minimum requirements. Your ability to work effectively in teams is hampered by poor communication or unreliability.",
+                        improvement: "Develop basic planning and organizational strategies, and practice applying them consistently to your work."
+                    },
+                    'marginal-fail': {
+                        strength: "Your work shows limited commitment and poor self-management with minimal professional conduct.",
+                        evidence: "Your work demonstrates serious deficiencies in planning and time management, with deadlines frequently missed or work substantially incomplete. There is little evidence of engagement with the subject or feedback. Your approach to collaborative work is problematic, affecting team dynamics or outcomes.",
+                        improvement: "Learn fundamental time management and planning techniques and begin to apply them to your work processes."
+                    },
+                    'fail': {
+                        strength: "Your work shows insufficient commitment and self-management with lack of professional conduct.",
+                        evidence: "There is almost no evidence of planning or time management in your work. Your engagement with the subject is minimal or absent. You need to develop basic understanding of professional expectations within educational and industry contexts, including reliability, communication, and personal responsibility.",
+                        improvement: "Develop basic understanding of professional conduct and time management for academic and design work."
+                    }
+                }
+            }
+        ];
+        
+        // Grade bands data with step marking
+        const gradeBands = [
+            { 
+                id: 'first-plus', 
+                title: 'Distinction', 
+                options: [
+                    { value: '98%', label: 'High (98%)' },
+                    { value: '95%', label: 'Mid (95%)' },
+                    { value: '92%', label: 'Low (92%)' }
                 ],
-                'marginal-fail': [
-                    'Strengthen your research with more diverse sources',
-                    'Show clearer connections between research and design development',
-                    'Improve organization and documentation of your design process',
-                    'Conduct more thorough material investigations',
-                    'Practice basic presentation techniques for more professional outcomes',
-                    'Improve your self-management and planning'
+                range: '85% and above', 
+                quality: 'Outstanding', 
+                color: '#80FF80', 
+                letterGrade: 'A+' 
+            },
+            { 
+                id: 'first', 
+                title: 'First Class', 
+                options: [
+                    { value: '82%', label: 'High (82%)' },
+                    { value: '78%', label: 'Mid (78%)' },
+                    { value: '72%', label: 'Low (72%)' }
                 ],
-                'third': [
-                    'Expand your research beyond obvious sources',
-                    'Develop better analytical skills rather than just describing',
-                    'Improve organization of your design development process',
-                    'Conduct more detailed material investigations with clearer evaluation',
-                    'Show more consistent professionalism in presentation',
-                    'Demonstrate more consistent engagement throughout projects'
+                range: '70-84%', 
+                quality: 'Very Good', 
+                color: '#BFFF80', 
+                letterGrade: 'A' 
+            },
+            { 
+                id: 'upper-second', 
+                title: 'Upper Second (2:1)', 
+                options: [
+                    { value: '68%', label: 'High (68%)' },
+                    { value: '65%', label: 'Mid (65%)' },
+                    { value: '62%', label: 'Low (62%)' }
                 ],
-                'lower-second': [
-                    'Deepen your research and show stronger critical analysis',
-                    'Make clearer connections between research and design development',
-                    'Show more creative exploration in your design process',
-                    'Enhance material investigations with more thoughtful evaluation',
-                    'Improve consistency in professional presentation standards',
-                    'Work on more effective planning and time management'
+                range: '60-69%', 
+                quality: 'Good', 
+                color: '#FFFF80', 
+                letterGrade: 'B' 
+            },
+            { 
+                id: 'lower-second', 
+                title: 'Lower Second (2:2)', 
+                options: [
+                    { value: '58%', label: 'High (58%)' },
+                    { value: '55%', label: 'Mid (55%)' },
+                    { value: '52%', label: 'Low (52%)' }
                 ],
-                'upper-second': [
-                    'Extend research beyond expected sources with deeper critical analysis',
-                    'Show more innovative connections between research and design',
-                    'Demonstrate more creative exploration and risk-taking',
-                    'Develop more sophisticated evaluation of materials and applications',
-                    'Refine presentation techniques for more professional outcomes',
-                    'Improve self-reflection and engagement with feedback'
+                range: '50-59%', 
+                quality: 'Satisfactory', 
+                color: '#FFE880', 
+                letterGrade: 'C' 
+            },
+            { 
+                id: 'third', 
+                title: 'Third Class', 
+                options: [
+                    { value: '48%', label: 'High (48%)' },
+                    { value: '45%', label: 'Mid (45%)' },
+                    { value: '42%', label: 'Low (42%)' }
                 ],
-                'first': [
-                    'Push research to discover unexpected connections and insights',
-                    'Take more creative risks that result in innovative outcomes',
-                    'Demonstrate exceptional critical thinking throughout',
-                    'Perfect technical execution in all aspects',
-                    'Explore innovative presentation methods while maintaining clarity',
-                    'Develop leadership skills and initiative in collaborative contexts'
+                range: '40-49%', 
+                quality: 'Adequate', 
+                color: '#FFCC80', 
+                letterGrade: 'D' 
+            },
+            { 
+                id: 'marginal-fail', 
+                title: 'Marginal Fail', 
+                options: [
+                    { value: '38%', label: 'High (38%)' },
+                    { value: '35%', label: 'Low (35%)' }
                 ],
-                'first-plus': [
-                    'Continue your outstanding work across all learning outcomes',
-                    'Consider mentoring others to share your exceptional approach',
-                    'Explore opportunities to showcase your work professionally',
-                    'Maintain your excellent standard while continuing to innovate',
-                    'Develop your professional network and industry connections'
-                ]
-            };
-            
-            // Default performance levels
-            let performanceLevels = {
-                outcome1: { bandId: 'first', percentage: '78%' },
-                outcome2: { bandId: 'upper-second', percentage: '65%' },
-                outcome3: { bandId: 'lower-second', percentage: '55%' },
-                outcome4: { bandId: 'upper-second', percentage: '62%' },
-                outcome5: { bandId: 'first', percentage: '72%' },
-                outcome6: { bandId: 'upper-second', percentage: '68%' }
-            };
-            
-            // Get DOM elements
-            const outcomeContainer = document.getElementById('outcomes-container');
-            const performanceChart = document.getElementById('performance-chart');
-            const gradeDisplay = document.getElementById('average-grade-display');
-            const gradeTitle = document.getElementById('grade-title');
-            const numericGrade = document.getElementById('numeric-grade');
-            const keyImprovements = document.getElementById('key-improvements');
-            const detailedFeedback = document.getElementById('detailed-feedback');
-            const overallAdvice = document.getElementById('overall-advice');
-            
-            // Modal elements
-            const matrixModal = document.getElementById('matrix-modal');
-            const compareModal = document.getElementById('compare-modal');
-            const closeMatrixBtn = document.getElementById('close-matrix');
-            const closeMatrixBtn2 = document.getElementById('close-matrix-btn');
-            const closeCompareBtn = document.getElementById('close-compare');
-            const closeCompareBtn2 = document.getElementById('close-compare-btn');
-            
-            // Action buttons
-            const saveProfileBtn = document.getElementById('save-profile-btn');
-            const compareProfilesBtn = document.getElementById('compare-profiles-btn');
-            const printSummaryBtn = document.getElementById('print-summary-btn');
-            const matrixButton = document.getElementById('matrix-button');
-            
-            // Success message
-            const successMessage = document.getElementById('success-message');
-            
-            // Initialize UI
-            initializeUI();
-            updateAllContent();
-            
-            // Check for saved profiles
-            checkSavedProfiles();
-            
-            // Set up modal event listeners
-            matrixButton.addEventListener('click', () => {
-                matrixModal.style.display = 'block';
-                matrixModal.setAttribute('aria-hidden', 'false');
-                document.getElementById('matrix-title').focus();
-                trapFocusInModal(matrixModal);
-            });
-            
-            closeMatrixBtn.addEventListener('click', () => {
+                range: '35-39%', 
+                quality: 'Unsatisfactory', 
+                color: '#FF9980', 
+                letterGrade: 'FM' 
+            },
+            { 
+                id: 'fail', 
+                title: 'Fail', 
+                options: [
+                    { value: '32%', label: 'High (32%)' },
+                    { value: '25%', label: 'Mid (25%)' },
+                    { value: '15%', label: 'Low (15%)' }
+                ],
+                range: '0-34%', 
+                quality: 'Poor', 
+                color: '#FF8080', 
+                letterGrade: 'F' 
+            }
+        ];
+        
+        // Overall improvement advice by grade
+        const overallImprovements = {
+            'fail': [
+                'Develop basic understanding of research methods and design processes',
+                'Begin to analyze materials rather than just describing them',
+                'Improve documentation of your design development process',
+                'Show evidence of basic material investigation',
+                'Practice fundamental presentation techniques',
+                'Develop basic time management and planning skills'
+            ],
+            'marginal-fail': [
+                'Strengthen your research with more diverse sources',
+                'Show clearer connections between research and design development',
+                'Improve organization and documentation of your design process',
+                'Conduct more thorough material investigations',
+                'Practice basic presentation techniques for more professional outcomes',
+                'Improve your self-management and planning'
+            ],
+            'third': [
+                'Expand your research beyond obvious sources',
+                'Develop better analytical skills rather than just describing',
+                'Improve organization of your design development process',
+                'Conduct more detailed material investigations with clearer evaluation',
+                'Show more consistent professionalism in presentation',
+                'Demonstrate more consistent engagement throughout projects'
+            ],
+            'lower-second': [
+                'Deepen your research and show stronger critical analysis',
+                'Make clearer connections between research and design development',
+                'Show more creative exploration in your design process',
+                'Enhance material investigations with more thoughtful evaluation',
+                'Improve consistency in professional presentation standards',
+                'Work on more effective planning and time management'
+            ],
+            'upper-second': [
+                'Extend research beyond expected sources with deeper critical analysis',
+                'Show more innovative connections between research and design',
+                'Demonstrate more creative exploration and risk-taking',
+                'Develop more sophisticated evaluation of materials and applications',
+                'Refine presentation techniques for more professional outcomes',
+                'Improve self-reflection and engagement with feedback'
+            ],
+            'first': [
+                'Push research to discover unexpected connections and insights',
+                'Take more creative risks that result in innovative outcomes',
+                'Demonstrate exceptional critical thinking throughout',
+                'Perfect technical execution in all aspects',
+                'Explore innovative presentation methods while maintaining clarity',
+                'Develop leadership skills and initiative in collaborative contexts'
+            ],
+            'first-plus': [
+                'Continue your outstanding work across all learning outcomes',
+                'Consider mentoring others to share your exceptional approach',
+                'Explore opportunities to showcase your work professionally',
+                'Maintain your excellent standard while continuing to innovate',
+                'Develop your professional network and industry connections'
+            ]
+        };
+        
+        // Default performance levels
+        let performanceLevels = {
+            outcome1: { bandId: 'first', percentage: '78%' },
+            outcome2: { bandId: 'upper-second', percentage: '65%' },
+            outcome3: { bandId: 'lower-second', percentage: '55%' },
+            outcome4: { bandId: 'upper-second', percentage: '62%' },
+            outcome5: { bandId: 'first', percentage: '72%' },
+            outcome6: { bandId: 'upper-second', percentage: '68%' }
+        };
+        
+        // Get DOM elements
+        const outcomeContainer = document.getElementById('outcomes-container');
+        const performanceChart = document.getElementById('performance-chart');
+        const gradeDisplay = document.getElementById('average-grade-display');
+        const gradeTitle = document.getElementById('grade-title');
+        const numericGrade = document.getElementById('numeric-grade');
+        const keyImprovements = document.getElementById('key-improvements');
+        const detailedFeedback = document.getElementById('detailed-feedback');
+        const overallAdvice = document.getElementById('overall-advice');
+        
+        // Modal elements
+        const matrixModal = document.getElementById('matrix-modal');
+        const compareModal = document.getElementById('compare-modal');
+        const closeMatrixBtn = document.getElementById('close-matrix');
+        const closeMatrixBtn2 = document.getElementById('close-matrix-btn');
+        const closeCompareBtn = document.getElementById('close-compare');
+        const closeCompareBtn2 = document.getElementById('close-compare-btn');
+        
+        // Action buttons
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        const loadProfileBtn = document.getElementById('load-profile-btn');
+        const profileUpload = document.getElementById('profile-upload');
+        const compareProfilesBtn = document.getElementById('compare-profiles-btn');
+        const printSummaryBtn = document.getElementById('print-summary-btn');
+        const matrixButton = document.getElementById('matrix-button');
+        
+        // Success message
+        const successMessage = document.getElementById('success-message');
+        
+        // Initialize UI
+        initializeUI();
+        updateAllContent();
+        
+        // Check for saved profiles
+        checkSavedProfiles();
+        
+        // Set up modal event listeners
+        matrixButton.addEventListener('click', () => {
+            matrixModal.style.display = 'block';
+            matrixModal.setAttribute('aria-hidden', 'false');
+            document.getElementById('matrix-title').focus();
+            trapFocusInModal(matrixModal);
+        });
+        
+        closeMatrixBtn.addEventListener('click', () => {
+            closeMatrixModal();
+        });
+        
+        closeMatrixBtn2.addEventListener('click', () => {
+            closeMatrixModal();
+        });
+        
+        compareProfilesBtn.addEventListener('click', () => {
+            updateCompareModal();
+            compareModal.style.display = 'block';
+            compareModal.setAttribute('aria-hidden', 'false');
+            document.getElementById('compare-title').focus();
+            trapFocusInModal(compareModal);
+        });
+        
+        closeCompareBtn.addEventListener('click', () => {
+            closeCompareModal();
+        });
+        
+        closeCompareBtn2.addEventListener('click', () => {
+            closeCompareModal();
+        });
+        
+        window.addEventListener('click', (event) => {
+            if (event.target === matrixModal) {
                 closeMatrixModal();
-            });
-            
-            closeMatrixBtn2.addEventListener('click', () => {
-                closeMatrixModal();
-            });
-            
-            compareProfilesBtn.addEventListener('click', () => {
-                updateCompareModal();
-                compareModal.style.display = 'block';
-                compareModal.setAttribute('aria-hidden', 'false');
-                document.getElementById('compare-title').focus();
-                trapFocusInModal(compareModal);
-            });
-            
-            closeCompareBtn.addEventListener('click', () => {
+            }
+            if (event.target === compareModal) {
                 closeCompareModal();
-            });
-            
-            closeCompareBtn2.addEventListener('click', () => {
-                closeCompareModal();
-            });
-            
-            window.addEventListener('click', (event) => {
-                if (event.target === matrixModal) {
+            }
+        });
+        
+        // Keyboard navigation for modals
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (matrixModal.style.display === 'block') {
                     closeMatrixModal();
                 }
-                if (event.target === compareModal) {
+                if (compareModal.style.display === 'block') {
                     closeCompareModal();
                 }
-            });
+            }
+        });
+        
+        // NEW: Set up profile load functionality
+        loadProfileBtn.addEventListener('click', () => {
+            profileUpload.click();
+        });
+        
+        profileUpload.addEventListener('change', handleProfileUpload);
+        
+        // Save profile button
+        saveProfileBtn.addEventListener('click', saveProfile);
+        
+        // Print summary button
+        printSummaryBtn.addEventListener('click', printSummary);
+        
+        // Initialize the UI components
+        function initializeUI() {
+            // Create outcome inputs
+            outcomeContainer.innerHTML = '';
             
-            // Keyboard navigation for modals
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
-                    if (matrixModal.style.display === 'block') {
-                        closeMatrixModal();
-                    }
-                    if (compareModal.style.display === 'block') {
-                        closeCompareModal();
-                    }
-                }
-            });
-            
-            // Save profile button
-            saveProfileBtn.addEventListener('click', saveProfile);
-            
-            // Print summary button
-            printSummaryBtn.addEventListener('click', printSummary);
-            
-            // Initialize the UI components
-            function initializeUI() {
-                // Create outcome inputs
-                outcomeContainer.innerHTML = '';
+            learningOutcomes.forEach(outcome => {
+                const outcomeElement = document.createElement('div');
+                outcomeElement.className = 'mb-4';
+                outcomeElement.style.marginBottom = '20px';
                 
-                learningOutcomes.forEach(outcome => {
-                    const outcomeElement = document.createElement('div');
-                    outcomeElement.className = 'mb-4';
-                    outcomeElement.style.marginBottom = '20px';
-                    
-                    const gradeBandHtml = `
-                        <div class="grade-bands-wrapper" role="radiogroup" aria-label="Grade bands for ${outcome.title}">
-                            ${gradeBands.map(band => {
-                                const isActive = performanceLevels[outcome.id].bandId === band.id;
-                                const optionsHtml = band.options.map(option => {
-                                    const isOptionActive = isActive && performanceLevels[outcome.id].percentage === option.value;
-                                    // Extract just High, Mid, Low from the label
-                                    const simplifiedLabel = option.label.split('(')[0].trim();
-                                    return `
-                                        <button 
-                                            class="grade-option-btn ${isOptionActive ? 'active' : ''}" 
-                                            data-band-id="${band.id}" 
-                                            data-outcome-id="${outcome.id}"
-                                            data-percentage="${option.value}"
-                                            role="radio"
-                                            aria-checked="${isOptionActive ? 'true' : 'false'}"
-                                            aria-label="${band.title} ${option.label}"
-                                        >
-                                            ${simplifiedLabel}
-                                        </button>
-                                    `;
-                                }).join('');
-                                
+                const gradeBandHtml = `
+                    <div class="grade-bands-wrapper" role="radiogroup" aria-label="Grade bands for ${outcome.title}">
+                        ${gradeBands.map(band => {
+                            const isActive = performanceLevels[outcome.id].bandId === band.id;
+                            const optionsHtml = band.options.map(option => {
+                                const isOptionActive = isActive && performanceLevels[outcome.id].percentage === option.value;
+                                // Extract just High, Mid, Low from the label
+                                const simplifiedLabel = option.label.split('(')[0].trim();
                                 return `
-                                    <div class="grade-band-container ${isActive ? band.id : ''}" style="background-color: ${isActive ? band.color : '#f9f9f9'};">
-                                        <div class="grade-band-title" id="grade-band-${band.id}-${outcome.id}">${band.title}</div>
-                                        <div class="grade-options-container">
-                                            ${optionsHtml}
-                                        </div>
-                                    </div>
+                                    <button 
+                                        class="grade-option-btn ${isOptionActive ? 'active' : ''}" 
+                                        data-band-id="${band.id}" 
+                                        data-outcome-id="${outcome.id}"
+                                        data-percentage="${option.value}"
+                                        role="radio"
+                                        aria-checked="${isOptionActive ? 'true' : 'false'}"
+                                        aria-label="${band.title} ${option.label}"
+                                    >
+                                        ${simplifiedLabel}
+                                    </button>
                                 `;
-                            }).join('')}
-                        </div>
-                    `;
-                    
-                    const html = `
-                        <h3 id="outcome-title-${outcome.id}" style="font-weight: bold; color: #333; font-size: 0.95rem; margin-bottom: 4px;">${outcome.title}</h3>
-                        <p style="font-size: 0.85rem; color: #555; margin-bottom: 5px;">${outcome.description}</p>
-                        <p style="font-size: 0.75rem; color: #3b82f6; margin-bottom: 8px;">School of Design Framework Mapping: <strong>${outcome.framework}</strong></p>
-                        
-                        <div>
-                            <label for="grade-selector-${outcome.id}" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 2px;">Select Your Grade:</label>
-                            ${gradeBandHtml}
-                        </div>
-                    `;
-                    
-                    outcomeElement.innerHTML = html;
-                    outcomeContainer.appendChild(outcomeElement);
-                });
-                
-                // Add event listeners to grade option buttons
-                document.querySelectorAll('.grade-option-btn').forEach(button => {
-                    button.addEventListener('click', handleGradeOptionChange);
-                    
-                    // Keyboard handling for radio buttons
-                    button.addEventListener('keydown', (event) => {
-                        const outcomeId = button.dataset.outcomeId;
-                        const bandId = button.dataset.bandId;
-                        const currentBandIndex = gradeBands.findIndex(band => band.id === bandId);
-                        
-                        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-                            event.preventDefault();
-                            // Move to next option in same band
-                            const siblings = Array.from(button.parentNode.querySelectorAll('.grade-option-btn'));
-                            const currentIndex = siblings.indexOf(button);
-                            if (currentIndex < siblings.length - 1) {
-                                siblings[currentIndex + 1].focus();
-                            } else {
-                                // Move to first option in next band if available
-                                const nextBand = gradeBands[currentBandIndex + 1];
-                                if (nextBand) {
-                                    const nextBandOptions = document.querySelectorAll(`.grade-option-btn[data-band-id="${nextBand.id}"][data-outcome-id="${outcomeId}"]`);
-                                    if (nextBandOptions.length > 0) {
-                                        nextBandOptions[0].focus();
-                                    }
-                                }
-                            }
-                        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-                            event.preventDefault();
-                            // Move to previous option in same band
-                            const siblings = Array.from(button.parentNode.querySelectorAll('.grade-option-btn'));
-                            const currentIndex = siblings.indexOf(button);
-                            if (currentIndex > 0) {
-                                siblings[currentIndex - 1].focus();
-                            } else {
-                                // Move to last option in previous band if available
-                                const prevBand = gradeBands[currentBandIndex - 1];
-                                if (prevBand) {
-                                    const prevBandOptions = document.querySelectorAll(`.grade-option-btn[data-band-id="${prevBand.id}"][data-outcome-id="${outcomeId}"]`);
-                                    if (prevBandOptions.length > 0) {
-                                        prevBandOptions[prevBandOptions.length - 1].focus();
-                                    }
-                                }
-                            }
-                        }
-                    });
-                });
-            }
-            
-            // Handle grade option change
-            function handleGradeOptionChange(event) {
-                const outcomeId = event.target.dataset.outcomeId;
-                const bandId = event.target.dataset.bandId;
-                const percentage = event.target.dataset.percentage;
-                
-                // Update performance level
-                performanceLevels[outcomeId] = {
-                    bandId: bandId,
-                    percentage: percentage
-                };
-                
-                // Update all radio buttons in the outcome group
-                const radioGroup = event.target.closest('[role="radiogroup"]');
-                radioGroup.querySelectorAll('[role="radio"]').forEach(radio => {
-                    const isChecked = (radio.dataset.bandId === bandId && radio.dataset.percentage === percentage);
-                    radio.setAttribute('aria-checked', isChecked ? 'true' : 'false');
-                    if (isChecked) {
-                        radio.classList.add('active');
-                    } else {
-                        radio.classList.remove('active');
-                    }
-                });
-                
-                // Update UI
-                updateUI(outcomeId);
-                updateAllContent();
-                
-                // Announce to screen readers
-                announceGradeChange(outcomeId, bandId, percentage);
-            }
-            
-            // Helper function to announce grade changes to screen readers
-            function announceGradeChange(outcomeId, bandId, percentage) {
-                const outcome = learningOutcomes.find(o => o.id === outcomeId);
-                const band = gradeBands.find(b => b.id === bandId);
-                
-                // Create a live region if it doesn't exist
-                let liveRegion = document.getElementById('grade-change-announcement');
-                if (!liveRegion) {
-                    liveRegion = document.createElement('div');
-                    liveRegion.id = 'grade-change-announcement';
-                    liveRegion.setAttribute('aria-live', 'polite');
-                    liveRegion.setAttribute('class', 'sr-only');
-                    document.body.appendChild(liveRegion);
-                }
-                
-                // Announce the change
-                liveRegion.textContent = `${outcome.title} grade changed to ${band.title}, ${percentage}`;
-            }
-            
-            // Update UI for a specific outcome
-            function updateUI(outcomeId) {
-                // Update grade band containers
-                document.querySelectorAll(`[data-outcome-id="${outcomeId}"]`).forEach(button => {
-                    // Get parent container
-                    const bandId = button.dataset.bandId;
-                    const percentage = button.dataset.percentage;
-                    const isActive = performanceLevels[outcomeId].bandId === bandId;
-                    const isOptionActive = isActive && performanceLevels[outcomeId].percentage === percentage;
-                    
-                    // Find parent container
-                    const container = button.closest('.grade-band-container');
-                    
-                    // Update container styling
-                    if (isActive) {
-                        const band = gradeBands.find(b => b.id === bandId);
-                        container.style.backgroundColor = band.color;
-                        container.classList.add(bandId);
-                    } else {
-                        container.style.backgroundColor = '#f9f9f9';
-                        gradeBands.forEach(band => {
-                            container.classList.remove(band.id);
-                        });
-                    }
-                    
-                    // Update button active state
-                    if (isOptionActive) {
-                        button.classList.add('active');
-                        button.setAttribute('aria-checked', 'true');
-                    } else {
-                        button.classList.remove('active');
-                        button.setAttribute('aria-checked', 'false');
-                    }
-                });
-            }
-            
-            // Update all content based on performance levels
-            function updateAllContent() {
-                updatePerformanceChart();
-                updateAverageGrade();
-                updateKeyImprovements();
-                updateDetailedFeedback();
-                updateOverallAdvice();
-            }
-            
-            // Draw performance chart
-            function updatePerformanceChart() {
-                const ctx = performanceChart.getContext('2d');
-                
-                // Clear canvas
-                ctx.clearRect(0, 0, performanceChart.width, performanceChart.height);
-                
-                const centerX = performanceChart.width / 2;
-                const centerY = performanceChart.height / 2;
-                const radius = Math.min(centerX, centerY) - 40;
-                
-                // Draw axes
-                const numAxes = learningOutcomes.length;
-                const angleStep = (Math.PI * 2) / numAxes;
-                
-                // Draw concentric circles for grade levels
-                const gradeLevels = gradeBands.length;
-                const radiusStep = radius / gradeLevels;
-                
-                // Draw grade level circles
-                for (let i = 1; i <= gradeLevels; i++) {
-                    const levelRadius = radiusStep * i;
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY, levelRadius, 0, Math.PI * 2);
-                    ctx.strokeStyle = i === gradeLevels ? '#333' : '#ddd';
-                    ctx.stroke();
-                    
-                    // Label the grade level - only on the top
-                    if (i < gradeLevels) {
-                        const grade = gradeBands[gradeLevels - i - 1];
-                        ctx.fillStyle = '#666';
-                        ctx.font = '10px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(grade.title.split(' ')[0], centerX, centerY - levelRadius - 5);
-                    }
-                }
-                
-                // Draw axes
-                for (let i = 0; i < numAxes; i++) {
-                    const angle = i * angleStep - Math.PI / 2;
-                    const x = centerX + radius * Math.cos(angle);
-                    const y = centerY + radius * Math.sin(angle);
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(centerX, centerY);
-                    ctx.lineTo(x, y);
-                    ctx.strokeStyle = '#aaa';
-                    ctx.stroke();
-                    
-                    // Label the axis with just the LO number
-                    const labelX = centerX + (radius + 20) * Math.cos(angle);
-                    const labelY = centerY + (radius + 20) * Math.sin(angle);
-                    
-                    ctx.fillStyle = '#333';
-                    ctx.font = 'bold 12px Arial';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    // Just use LO1, LO2, etc.
-                    ctx.fillText(`LO${i+1}`, labelX, labelY);
-                }
-                
-                // Plot data points
-                const dataPoints = [];
-                
-                for (let i = 0; i < numAxes; i++) {
-                    const outcome = learningOutcomes[i];
-                    const gradeId = performanceLevels[outcome.id].bandId;
-                    const gradeIndex = gradeBands.findIndex(g => g.id === gradeId);
-                    
-                    // Reverse the index since highest grades are on the outside
-                    const reversedIndex = gradeBands.length - gradeIndex - 1;
-                    
-                    const pointRadius = radiusStep * (reversedIndex + 0.5);
-                    const angle = i * angleStep - Math.PI / 2;
-                    const x = centerX + pointRadius * Math.cos(angle);
-                    const y = centerY + pointRadius * Math.sin(angle);
-                    
-                    dataPoints.push({ x, y });
-                }
-                
-                // Draw the shape
-                ctx.beginPath();
-                ctx.moveTo(dataPoints[0].x, dataPoints[0].y);
-                
-                for (let i = 1; i < dataPoints.length; i++) {
-                    ctx.lineTo(dataPoints[i].x, dataPoints[i].y);
-                }
-                
-                ctx.lineTo(dataPoints[0].x, dataPoints[0].y);
-                ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
-                ctx.fill();
-                ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                
-                // Draw data points
-                dataPoints.forEach((point, index) => {
-                    const outcome = learningOutcomes[index];
-                    const gradeId = performanceLevels[outcome.id].bandId;
-                    const grade = gradeBands.find(g => g.id === gradeId);
-                    
-                    ctx.beginPath();
-                    ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
-                    ctx.fillStyle = grade.color;
-                    ctx.fill();
-                    ctx.strokeStyle = '#333';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                });
-            }
-            
-            // Calculate and update average grade
-            function updateAverageGrade() {
-                // Convert percentage strings to numbers
-                const percentages = Object.values(performanceLevels).map(level => 
-                    parseFloat(level.percentage.replace('%', ''))
-                );
-                
-                // Calculate simple average
-                const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
-                
-                // Round to nearest step mark (X8, X5, X2, X0)
-                let roundedAverage;
-                if (average % 10 <= 1) roundedAverage = Math.floor(average / 10) * 10;
-                else if (average % 10 <= 3.5) roundedAverage = Math.floor(average / 10) * 10 + 2;
-                else if (average % 10 <= 6.5) roundedAverage = Math.floor(average / 10) * 10 + 5;
-                else if (average % 10 <= 9) roundedAverage = Math.floor(average / 10) * 10 + 8;
-                else roundedAverage = Math.ceil(average / 10) * 10;
-                
-                // Find grade band
-                let gradeBand = null;
-                for (const band of gradeBands) {
-                    const rangeNums = band.options.map(o => parseFloat(o.value.replace('%', '')));
-                    const minRange = Math.min(...rangeNums);
-                    const maxRange = Math.max(...rangeNums);
-                    
-                    // Special handling for first-plus (85 and above)
-                    if (band.id === 'first-plus' && roundedAverage >= 85) {
-                        gradeBand = band;
-                        break;
-                    } 
-                    // For other bands, check if within range
-                    else if (band.id !== 'first-plus') {
-                        const rangeText = band.range.split('-');
-                        if (rangeText.length === 2) {
-                            const min = parseInt(rangeText[0]);
-                            const max = parseInt(rangeText[1]);
-                            if (roundedAverage >= min && roundedAverage <= max) {
-                                gradeBand = band;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (gradeBand) {
-                    // Update grade display
-                    gradeDisplay.className = '';
-                    gradeDisplay.classList.add(gradeBand.id);
-                    gradeDisplay.style.backgroundColor = gradeBand.color;
-                    
-                    // Update with only title and percentage (no letter grade)
-                    gradeTitle.textContent = gradeBand.title;
-                    numericGrade.textContent = `${roundedAverage}%`;
-                    
-                    // Update ARIA attributes for accessibility
-                    gradeDisplay.setAttribute('aria-label', `Your average grade is ${roundedAverage}%, which is a ${gradeBand.title}`);
-                }
-            }
-            
-            // Update key improvements
-            function updateKeyImprovements() {
-                keyImprovements.innerHTML = '';
-                
-                learningOutcomes.forEach(outcome => {
-                    const feedback = outcome.feedback[performanceLevels[outcome.id].bandId];
-                    
-                    const li = document.createElement('li');
-                    li.innerHTML = `<span style="font-weight: 600;">${outcome.title.split(':')[0]}:</span> ${feedback.improvement}`;
-                    keyImprovements.appendChild(li);
-                });
-            }
-            
-            // Update detailed feedback
-            function updateDetailedFeedback() {
-                detailedFeedback.innerHTML = '';
-                
-                learningOutcomes.forEach(outcome => {
-                    const gradeInfo = performanceLevels[outcome.id];
-                    const grade = gradeBands.find(g => g.id === gradeInfo.bandId);
-                    const feedback = outcome.feedback[gradeInfo.bandId];
-                    
-                    const card = document.createElement('div');
-                    card.className = 'bg-white p-4 rounded-md shadow-sm';
-                    card.style.backgroundColor = 'white';
-                    card.style.padding = '16px';
-                    card.style.borderRadius = '2px';
-                    card.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
-                    
-                    card.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                            <h3 style="font-weight: bold;">${outcome.title}</h3>
-                            <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                                <span 
-                                    style="padding: 4px 8px; border-radius: 2px; font-size: 0.875rem; font-weight: bold; margin-bottom: 4px; background-color: ${grade.color};"
-                                >
-                                    ${grade.title}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        <div style="font-size: 0.875rem;">
-                            <div style="margin-bottom: 8px;">
-                                <p class="section-title">Strengths Evidenced in Your Work:</p>
-                                <p>${feedback.strength}</p>
-                            </div>
-                            <div style="margin-bottom: 8px;">
-                                <p class="section-title">Areas for Reflection and Practice:</p>
-                                <p>${feedback.evidence}</p>
-                            </div>
-                            <div>
-                                <p class="section-title">Summary:</p>
-                                <p>${feedback.improvement}</p>
-                            </div>
-                        </div>
-                    `;
-                    
-                    detailedFeedback.appendChild(card);
-                });
-            }
-            
-            // Update overall advice
-            function updateOverallAdvice() {
-                // Calculate average grade to determine advice level
-                const percentages = Object.values(performanceLevels).map(level => 
-                    parseFloat(level.percentage.replace('%', ''))
-                );
-                
-                const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
-                
-                // Find grade band
-                let gradeBandId = null;
-                for (const band of gradeBands) {
-                    // Special handling for first-plus
-                    if (band.id === 'first-plus' && average >= 85) {
-                        gradeBandId = band.id;
-                        break;
-                    } 
-                    // For other bands
-                    else if (band.id !== 'first-plus') {
-                        const rangeText = band.range.split('-');
-                        if (rangeText.length === 2) {
-                            const min = parseInt(rangeText[0]);
-                            const max = parseInt(rangeText[1]);
-                            if (average >= min && average <= max) {
-                                gradeBandId = band.id;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                if (gradeBandId && overallImprovements[gradeBandId]) {
-                    overallAdvice.innerHTML = '';
-                    
-                    overallImprovements[gradeBandId].forEach(advice => {
-                        const li = document.createElement('li');
-                        li.textContent = advice;
-                        overallAdvice.appendChild(li);
-                    });
-                }
-            }
-            
-            // Save the current profile as a downloadable JSON file
-            function saveProfile() {
-                // Create a profile object
-                const now = new Date();
-                const dateString = now.toISOString().slice(0, 10);
-                const timeString = now.toTimeString().slice(0, 5);
-                
-                // Calculate average grade for the profile
-                const percentages = Object.values(performanceLevels).map(level => 
-                    parseFloat(level.percentage.replace('%', ''))
-                );
-                
-                const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
-                
-                // Round to nearest step mark (X8, X5, X2, X0)
-                let roundedAverage;
-                if (average % 10 <= 1) roundedAverage = Math.floor(average / 10) * 10;
-                else if (average % 10 <= 3.5) roundedAverage = Math.floor(average / 10) * 10 + 2;
-                else if (average % 10 <= 6.5) roundedAverage = Math.floor(average / 10) * 10 + 5;
-                else if (average % 10 <= 9) roundedAverage = Math.floor(average / 10) * 10 + 8;
-                else roundedAverage = Math.ceil(average / 10) * 10;
-                
-                // Find grade band
-                let gradeBandId = null;
-                let gradeBandTitle = '';
-                let letterGrade = '';
-                
-                for (const band of gradeBands) {
-                    // Special handling for first-plus
-                    if (band.id === 'first-plus' && roundedAverage >= 85) {
-                        gradeBandId = band.id;
-                        gradeBandTitle = band.title;
-                        letterGrade = band.letterGrade;
-                        break;
-                    } 
-                    // For other bands
-                    else if (band.id !== 'first-plus') {
-                        const rangeText = band.range.split('-');
-                        if (rangeText.length === 2) {
-                            const min = parseInt(rangeText[0]);
-                            const max = parseInt(rangeText[1]);
-                            if (roundedAverage >= min && roundedAverage <= max) {
-                                gradeBandId = band.id;
-                                gradeBandTitle = band.title;
-                                letterGrade = band.letterGrade;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                const profile = {
-                    id: `profile-${Date.now()}`,
-                    date: `${dateString} ${timeString}`,
-                    performanceLevels: {...performanceLevels},
-                    averageGrade: {
-                        bandId: gradeBandId,
-                        bandTitle: gradeBandTitle,
-                        numericValue: roundedAverage,
-                        letterGrade: letterGrade
-                    }
-                };
-                
-                // Get existing profiles from localStorage
-                let existingProfiles = [];
-                try {
-                    const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
-                    if (storedProfiles) {
-                        existingProfiles = JSON.parse(storedProfiles);
-                    }
-                } catch (error) {
-                    console.error('Error loading saved profiles:', error);
-                }
-                
-                // Add new profile and save to localStorage
-                const updatedProfiles = [profile, ...existingProfiles].slice(0, 10); // Keep only 10 most recent
-                localStorage.setItem('fn4004-assessment-profiles', JSON.stringify(updatedProfiles));
-                
-                // Also save as downloadable file
-                const dataStr = JSON.stringify(profile, null, 2);
-                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-                
-                const exportFileDefaultName = `FN4004_Assessment_Profile_${dateString.replace(/-/g, '')}.json`;
-                
-                const linkElement = document.createElement('a');
-                linkElement.setAttribute('href', dataUri);
-                linkElement.setAttribute('download', exportFileDefaultName);
-                linkElement.style.display = 'none';
-                document.body.appendChild(linkElement);
-                linkElement.click();
-                document.body.removeChild(linkElement);
-                
-                // Show success message
-                successMessage.style.display = 'block';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 3000);
-                
-                // Enable compare button
-                compareProfilesBtn.disabled = false;
-                compareProfilesBtn.style.opacity = '1';
-                compareProfilesBtn.setAttribute('aria-disabled', 'false');
-                
-                // Announce to screen readers
-// Announce to screen readers
-                announceProfileSaved(exportFileDefaultName);
-            }
-            
-            // Helper function to announce profile saving to screen readers
-            function announceProfileSaved(filename) {
-                // Create a live region if it doesn't exist
-                let liveRegion = document.getElementById('profile-save-announcement');
-                if (!liveRegion) {
-                    liveRegion = document.createElement('div');
-                    liveRegion.id = 'profile-save-announcement';
-                    liveRegion.setAttribute('aria-live', 'polite');
-                    liveRegion.setAttribute('class', 'sr-only');
-                    document.body.appendChild(liveRegion);
-                }
-                
-                // Announce the save
-                liveRegion.textContent = `Assessment profile saved successfully as ${filename}. You can now upload this file to your OneDrive to keep track of your progress.`;
-            }
-            
-            // Check for saved profiles
-            function checkSavedProfiles() {
-                try {
-                    const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
-                    if (storedProfiles) {
-                        const profiles = JSON.parse(storedProfiles);
-                        if (profiles.length > 0) {
-                            compareProfilesBtn.disabled = false;
-                            compareProfilesBtn.style.opacity = '1';
-                            compareProfilesBtn.setAttribute('aria-disabled', 'false');
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error loading saved profiles:', error);
-                }
-            }
-            
-            // Update compare modal with improved accessibility
-            function updateCompareModal() {
-                const hasProfilesDiv = document.getElementById('has-profiles');
-                const noProfilesDiv = document.getElementById('no-profiles');
-                const progressTable = document.getElementById('progress-table');
-                const improvementList = document.getElementById('improvement-list');
-                const previousDate = document.getElementById('previous-date');
-                
-                try {
-                    const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
-                    if (storedProfiles) {
-                        const profiles = JSON.parse(storedProfiles);
-                        if (profiles.length > 0) {
-                            // Show profiles content
-                            hasProfilesDiv.style.display = 'block';
-                            noProfilesDiv.style.display = 'none';
-                            
-                            // Create progress table with improved accessibility
-                            let tableHtml = `
-                                <caption class="sr-only">Progress over time showing grade improvements across learning outcomes</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Date</th>
-                                        <th scope="col">Average Grade</th>
-                                        ${learningOutcomes.map(outcome => 
-                                            `<th scope="col">${outcome.title.split(':')[0]}</th>`
-                                        ).join('')}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Current</th>
-                                        <td>
-                            `;
-                            
-                            // Calculate current average
-                            const percentages = Object.values(performanceLevels).map(level => 
-                                parseFloat(level.percentage.replace('%', ''))
-                            );
-                            
-                            const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
-                            
-                            // Round to nearest step mark
-                            let roundedAverage;
-                            if (average % 10 <= 1) roundedAverage = Math.floor(average / 10) * 10;
-                            else if (average % 10 <= 3.5) roundedAverage = Math.floor(average / 10) * 10 + 2;
-                            else if (average % 10 <= 6.5) roundedAverage = Math.floor(average / 10) * 10 + 5;
-                            else if (average % 10 <= 9) roundedAverage = Math.floor(average / 10) * 10 + 8;
-                            else roundedAverage = Math.ceil(average / 10) * 10;
-                            
-                            // Find band title
-                            let bandTitle = '';
-                            for (const band of gradeBands) {
-                                // Special handling for first-plus
-                                if (band.id === 'first-plus' && roundedAverage >= 85) {
-                                    bandTitle = band.title;
-                                    break;
-                                } 
-                                // For other bands
-                                else if (band.id !== 'first-plus') {
-                                    const rangeText = band.range.split('-');
-                                    if (rangeText.length === 2) {
-                                        const min = parseInt(rangeText[0]);
-                                        const max = parseInt(rangeText[1]);
-                                        if (roundedAverage >= min && roundedAverage <= max) {
-                                            bandTitle = band.title;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            tableHtml += `${roundedAverage}% (${bandTitle})</td>`;
-                            
-                            // Add outcome grades
-                            for (const outcome of learningOutcomes) {
-                                const gradeId = performanceLevels[outcome.id].bandId;
-                                const grade = gradeBands.find(g => g.id === gradeId);
-                                
-                                tableHtml += `
-                                    <td style="text-align: center; background-color: ${grade.color};">
-                                        ${performanceLevels[outcome.id].percentage}
-                                    </td>
-                                `;
-                            }
-                            
-                            tableHtml += `</tr>`;
-                            
-                            // Add saved profiles
-                            profiles.forEach(profile => {
-                                tableHtml += `
-                                    <tr>
-                                        <th scope="row">${profile.date}</th>
-                                        <td>
-                                            ${profile.averageGrade.numericValue}% (${profile.averageGrade.bandTitle})
-                                        </td>
-                                `;
-                                
-                                // Add outcome grades
-                                for (const outcome of learningOutcomes) {
-                                    const levelInfo = profile.performanceLevels[outcome.id];
-                                    if (levelInfo) {
-                                        const grade = gradeBands.find(g => g.id === levelInfo.bandId);
-                                        
-                                        tableHtml += `
-                                            <td style="text-align: center; background-color: ${grade.color};">
-                                                ${levelInfo.percentage}
-                                            </td>
-                                        `;
-                                    } else {
-                                        tableHtml += `<td></td>`;
-                                    }
-                                }
-                                
-                                tableHtml += `</tr>`;
-                            });
-                            
-                            tableHtml += `</tbody>`;
-                            progressTable.innerHTML = tableHtml;
-                            
-                            // Create improvement analysis
-                            if (profiles.length > 0) {
-                                const mostRecentProfile = profiles[0];
-                                previousDate.textContent = `Compared to previous assessment (${mostRecentProfile.date}):`;
-                                
-                                improvementList.innerHTML = '';
-                                
-                                // Analyze improvements for each outcome
-                                learningOutcomes.forEach(outcome => {
-                                    const currentPercentage = parseFloat(performanceLevels[outcome.id].percentage);
-                                    const previousPercentage = parseFloat(mostRecentProfile.performanceLevels[outcome.id]?.percentage || '0');
-                                    const difference = currentPercentage - previousPercentage;
-                                    
-                                    let changeText = '';
-                                    let changeClass = '';
-                                    
-                                    if (difference > 0) {
-                                        changeText = `improved by ${difference.toFixed(1)}%`;
-                                        changeClass = 'improvement-positive';
-                                    } else if (difference < 0) {
-                                        changeText = `decreased by ${Math.abs(difference).toFixed(1)}%`;
-                                        changeClass = 'improvement-negative';
-                                    } else {
-                                        changeText = 'unchanged';
-                                        changeClass = 'improvement-neutral';
-                                    }
-                                    
-                                    const li = document.createElement('li');
-                                    li.innerHTML = `
-                                        <span style="font-weight: 600;">${outcome.title.split(':')[0]}:</span> 
-                                        <span class="${changeClass}">${changeText}</span>
-                                    `;
-                                    improvementList.appendChild(li);
-                                });
-                                
-                                // Overall change
-                                const currentAvg = roundedAverage;
-                                const previousAvg = mostRecentProfile.averageGrade.numericValue;
-                                const difference = currentAvg - previousAvg;
-                                
-                                let changeText = '';
-                                let changeClass = '';
-                                
-                                if (difference > 0) {
-                                    changeText = `improved by ${difference.toFixed(1)}%`;
-                                    changeClass = 'improvement-positive';
-                                } else if (difference < 0) {
-                                    changeText = `decreased by ${Math.abs(difference).toFixed(1)}%`;
-                                    changeClass = 'improvement-negative';
-                                } else {
-                                    changeText = 'unchanged';
-                                    changeClass = 'improvement-neutral';
-                                }
-                                
-                                const li = document.createElement('li');
-                                li.setAttribute('aria-label', `Overall grade ${changeText}`);
-                                li.style.fontWeight = '600';
-                                li.style.marginTop = '8px';
-                                li.innerHTML = `
-                                    <span>Overall grade:</span> 
-                                    <span class="${changeClass}">${changeText}</span>
-                                `;
-                                improvementList.appendChild(li);
-                            }
-                            
-                        } else {
-                            // No profiles
-                            hasProfilesDiv.style.display = 'none';
-                            noProfilesDiv.style.display = 'block';
-                        }
-                    } else {
-                        // No profiles
-                        hasProfilesDiv.style.display = 'none';
-                        noProfilesDiv.style.display = 'block';
-                    }
-                } catch (error) {
-                    console.error('Error loading saved profiles:', error);
-                    // No profiles
-                    hasProfilesDiv.style.display = 'none';
-                    noProfilesDiv.style.display = 'block';
-                }
-            }
-            
-            // Print assessment summary with chart
-            function printSummary() {
-                const printWindow = window.open('', '_blank');
-                
-                if (!printWindow) {
-                    alert('Please allow pop-ups to print the assessment summary.');
-                    return;
-                }
-                
-                // Calculate average grade
-                const percentages = Object.values(performanceLevels).map(level => 
-                    parseFloat(level.percentage.replace('%', ''))
-                );
-                
-                const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
-                
-                // Round to nearest step mark
-                let roundedAverage;
-                if (average % 10 <= 1) roundedAverage = Math.floor(average / 10) * 10;
-                else if (average % 10 <= 3.5) roundedAverage = Math.floor(average / 10) * 10 + 2;
-                else if (average % 10 <= 6.5) roundedAverage = Math.floor(average / 10) * 10 + 5;
-                else if (average % 10 <= 9) roundedAverage = Math.floor(average / 10) * 10 + 8;
-                else roundedAverage = Math.ceil(average / 10) * 10;
-                
-                // Find grade band
-                let gradeBandId = null;
-                let gradeBandTitle = '';
-                
-                for (const band of gradeBands) {
-                    // Special handling for first-plus
-                    if (band.id === 'first-plus' && roundedAverage >= 85) {
-                        gradeBandId = band.id;
-                        gradeBandTitle = band.title;
-                        break;
-                    } 
-                    // For other bands
-                    else if (band.id !== 'first-plus') {
-                        const rangeText = band.range.split('-');
-                        if (rangeText.length === 2) {
-                            const min = parseInt(rangeText[0]);
-                            const max = parseInt(rangeText[1]);
-                            if (roundedAverage >= min && roundedAverage <= max) {
-                                gradeBandId = band.id;
-                                gradeBandTitle = band.title;
-                                break;
-                            }
-                        }
-                    }
-                }
-                
-                // Capture current canvas data for printing
-                const chartDataURL = performanceChart.toDataURL('image/png');
-                
-                // Create print content with chart image
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>FN4004 Assessment Summary</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                padding: 20px;
-                                max-width: 800px;
-                                margin: 0 auto;
-                            }
-                            .header {
-                                text-align: center;
-                                margin-bottom: 20px;
-                                padding-bottom: 10px;
-                                border-bottom: 1px solid #ccc;
-                            }
-                            .summary-box {
-                                border: 1px solid #ccc;
-                                padding: 15px;
-                                margin-bottom: 20px;
-                                background-color: #f9f9f9;
-                            }
-                            .outcome {
-                                margin-bottom: 20px;
-                                padding-bottom: 15px;
-                                border-bottom: 1px dashed #eee;
-                            }
-                            .grade-band {
-                                font-weight: bold;
-                                margin-bottom: 5px;
-                            }
-                            .average-grade {
-                                font-size: 24px;
-                                font-weight: bold;
-                                text-align: center;
-                                margin: 20px 0;
-                            }
-                            .date {
-                                text-align: right;
-                                font-style: italic;
-                                margin-bottom: 20px;
-                            }
-                            .footer {
-                                margin-top: 30px;
-                                font-size: 12px;
-                                text-align: center;
-                                color: #666;
-                            }
-                            .chart-container {
-                                text-align: center;
-                                margin-bottom: 20px;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="header">
-                            <h1>FN4004 Design Process 1</h1>
-                            <h2>Assessment Profile Summary</h2>
-                        </div>
-                        
-                        <div class="date">Date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                        
-                        <div class="summary-box">
-                            <h3>Overall Assessment</h3>
-                            <div class="average-grade">
-                                ${roundedAverage}% - ${gradeBandTitle}
-                            </div>
-                            
-                            <div class="chart-container">
-                                <h3>Performance Profile</h3>
-                                <img src="${chartDataURL}" alt="Performance radar chart showing grades across all learning outcomes" style="max-width: 100%; height: auto;">
-                            </div>
-                        </div>
-                        
-                        <h3>Learning Outcomes Assessment</h3>
-                        
-                        ${learningOutcomes.map(outcome => {
-                            const gradeInfo = performanceLevels[outcome.id];
-                            const grade = gradeBands.find(g => g.id === gradeInfo.bandId);
-                            const feedback = outcome.feedback[gradeInfo.bandId];
+                            }).join('');
                             
                             return `
-                                <div class="outcome">
-                                    <h4>${outcome.title}</h4>
-                                    <p>${outcome.description}</p>
-                                    <div class="grade-band">Grade: ${grade.title} (${gradeInfo.percentage})</div>
-                                    <p><strong>Strengths:</strong> ${feedback.strength}</p>
-                                    <p><strong>Areas for Development:</strong> ${feedback.evidence}</p>
-                                    <p><strong>For improvement:</strong> ${feedback.improvement}</p>
+                                <div class="grade-band-container ${isActive ? band.id : ''}" style="background-color: ${isActive ? band.color : '#f9f9f9'};">
+                                    <div class="grade-band-title" id="grade-band-${band.id}-${outcome.id}">${band.title}</div>
+                                    <div class="grade-options-container">
+                                        ${optionsHtml}
+                                    </div>
                                 </div>
                             `;
                         }).join('')}
-                        
-                        <h3>How to improve your overall grade:</h3>
-                        <ul>
-                            ${overallImprovements[gradeBandId]?.map(advice => 
-                                `<li>${advice}</li>`
-                            ).join('') || ''}
-                        </ul>
-                        
-                        <div class="footer">
-                            <p>This assessment summary is for reference only and not an official grade.</p>
-                            <p>Kingston School of Art - BA (Hons) Fashion Program – FN4004 Design Process 1</p>
-                            <p>© ${new Date().getFullYear()} Kingston University</p>
-                        </div>
-                    </body>
-                    </html>
-                `);
+                    </div>
+                `;
                 
-                printWindow.document.close();
+                const html = `
+                    <h3 id="outcome-title-${outcome.id}" style="font-weight: bold; color: #333; font-size: 0.95rem; margin-bottom: 4px;">${outcome.title}</h3>
+                    <p style="font-size: 0.85rem; color: #555; margin-bottom: 5px;">${outcome.description}</p>
+                    <p style="font-size: 0.75rem; color: #3b82f6; margin-bottom: 8px;">School of Design Framework Mapping: <strong>${outcome.framework}</strong></p>
+                    
+                    <div>
+                        <label for="grade-selector-${outcome.id}" style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 2px;">Select Your Grade:</label>
+                        ${gradeBandHtml}
+                    </div>
+                `;
                 
-                // Wait for content to load then print
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
-            }
+                outcomeElement.innerHTML = html;
+                outcomeContainer.appendChild(outcomeElement);
+            });
             
-            // Modal accessibility functions
-            function trapFocusInModal(modal) {
-                const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-                if (focusableElements.length === 0) return;
+            // Add event listeners to grade option buttons
+            document.querySelectorAll('.grade-option-btn').forEach(button => {
+                button.addEventListener('click', handleGradeOptionChange);
                 
-                const firstElement = focusableElements[0];
-                const lastElement = focusableElements[focusableElements.length - 1];
-                
-                const handleTabKey = (e) => {
-                    if (e.key === 'Tab') {
-                        if (e.shiftKey) { // Shift + Tab
-                            if (document.activeElement === firstElement) {
-                                lastElement.focus();
-                                e.preventDefault();
+                // Keyboard handling for radio buttons
+                button.addEventListener('keydown', (event) => {
+                    const outcomeId = button.dataset.outcomeId;
+                    const bandId = button.dataset.bandId;
+                    const currentBandIndex = gradeBands.findIndex(band => band.id === bandId);
+                    
+                    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        // Move to next option in same band
+                        const siblings = Array.from(button.parentNode.querySelectorAll('.grade-option-btn'));
+                        const currentIndex = siblings.indexOf(button);
+                        if (currentIndex < siblings.length - 1) {
+                            siblings[currentIndex + 1].focus();
+                        } else {
+                            // Move to first option in next band if available
+                            const nextBand = gradeBands[currentBandIndex + 1];
+                            if (nextBand) {
+                                const nextBandOptions = document.querySelectorAll(`.grade-option-btn[data-band-id="${nextBand.id}"][data-outcome-id="${outcomeId}"]`);
+                                if (nextBandOptions.length > 0) {
+                                    nextBandOptions[0].focus();
+                                }
                             }
-                        } else { // Tab
-                            if (document.activeElement === lastElement) {
-                                firstElement.focus();
-                                e.preventDefault();
+                        }
+                    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        // Move to previous option in same band
+                        const siblings = Array.from(button.parentNode.querySelectorAll('.grade-option-btn'));
+                        const currentIndex = siblings.indexOf(button);
+                        if (currentIndex > 0) {
+                            siblings[currentIndex - 1].focus();
+                        } else {
+                            // Move to last option in previous band if available
+                            const prevBand = gradeBands[currentBandIndex - 1];
+                            if (prevBand) {
+                                const prevBandOptions = document.querySelectorAll(`.grade-option-btn[data-band-id="${prevBand.id}"][data-outcome-id="${outcomeId}"]`);
+                                if (prevBandOptions.length > 0) {
+                                    prevBandOptions[prevBandOptions.length - 1].focus();
+                                }
                             }
                         }
                     }
-                };
-                
-                modal.addEventListener('keydown', handleTabKey);
-                
-                // Return a cleanup function to remove the event listener
-                return () => {
-                    modal.removeEventListener('keydown', handleTabKey);
-                };
+                });
+            });
+        }
+        
+        // Handle grade option change
+        function handleGradeOptionChange(event) {
+            const outcomeId = event.target.dataset.outcomeId;
+            const bandId = event.target.dataset.bandId;
+            const percentage = event.target.dataset.percentage;
+            
+            // Update performance level
+            performanceLevels[outcomeId] = {
+                bandId: bandId,
+                percentage: percentage
+            };
+            
+            // Update all radio buttons in the outcome group
+            const radioGroup = event.target.closest('[role="radiogroup"]');
+            radioGroup.querySelectorAll('[role="radio"]').forEach(radio => {
+                const isChecked = (radio.dataset.bandId === bandId && radio.dataset.percentage === percentage);
+                radio.setAttribute('aria-checked', isChecked ? 'true' : 'false');
+                if (isChecked) {
+                    radio.classList.add('active');
+                } else {
+                    radio.classList.remove('active');
+                }
+            });
+            
+            // Update UI
+            updateUI(outcomeId);
+            updateAllContent();
+            
+            // Announce to screen readers
+            announceGradeChange(outcomeId, bandId, percentage);
+        }
+        
+        // Helper function to announce grade changes to screen readers
+        function announceGradeChange(outcomeId, bandId, percentage) {
+            const outcome = learningOutcomes.find(o => o.id === outcomeId);
+            const band = gradeBands.find(b => b.id === bandId);
+            
+            // Create a live region if it doesn't exist
+            let liveRegion = document.getElementById('grade-change-announcement');
+            if (!liveRegion) {
+                liveRegion = document.createElement('div');
+                liveRegion.id = 'grade-change-announcement';
+                liveRegion.setAttribute('aria-live', 'polite');
+                liveRegion.setAttribute('class', 'sr-only');
+                document.body.appendChild(liveRegion);
             }
             
-            // Close matrix modal
-            function closeMatrixModal() {
-                matrixModal.style.display = 'none';
-                matrixModal.setAttribute('aria-hidden', 'true');
-                // Return focus to the button that opened the modal
-                matrixButton.focus();
+            // Announce the change
+            liveRegion.textContent = `${outcome.title} grade changed to ${band.title}, ${percentage}`;
+        }
+        
+        // Update UI for a specific outcome
+        function updateUI(outcomeId) {
+            // Update grade band containers
+            document.querySelectorAll(`[data-outcome-id="${outcomeId}"]`).forEach(button => {
+                // Get parent container
+                const bandId = button.dataset.bandId;
+                const percentage = button.dataset.percentage;
+                const isActive = performanceLevels[outcomeId].bandId === bandId;
+                const isOptionActive = isActive && performanceLevels[outcomeId].percentage === percentage;
+                
+                // Find parent container
+                const container = button.closest('.grade-band-container');
+                
+                // Update container styling
+                if (isActive) {
+                    const band = gradeBands.find(b => b.id === bandId);
+                    container.style.backgroundColor = band.color;
+                    container.classList.add(bandId);
+                } else {
+                    container.style.backgroundColor = '#f9f9f9';
+                    gradeBands.forEach(band => {
+                        container.classList.remove(band.id);
+                    });
+                }
+                
+                // Update button active state
+                if (isOptionActive) {
+                    button.classList.add('active');
+                    button.setAttribute('aria-checked', 'true');
+                } else {
+                    button.classList.remove('active');
+                    button.setAttribute('aria-checked', 'false');
+                }
+            });
+        }
+        
+        // Update all content based on performance levels
+        function updateAllContent() {
+            updatePerformanceChart();
+            updateAverageGrade();
+            updateKeyImprovements();
+            updateDetailedFeedback();
+            updateOverallAdvice();
+        }
+        
+        // Draw performance chart
+        function updatePerformanceChart() {
+            const ctx = performanceChart.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, performanceChart.width, performanceChart.height);
+            
+            const centerX = performanceChart.width / 2;
+            const centerY = performanceChart.height / 2;
+            const radius = Math.min(centerX, centerY) - 40;
+            
+            // Draw axes
+            const numAxes = learningOutcomes.length;
+            const angleStep = (Math.PI * 2) / numAxes;
+            
+            // Draw concentric circles for grade levels
+            const gradeLevels = gradeBands.length;
+            const radiusStep = radius / gradeLevels;
+            
+            // Draw grade level circles
+            for (let i = 1; i <= gradeLevels; i++) {
+                const levelRadius = radiusStep * i;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, levelRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = i === gradeLevels ? '#333' : '#ddd';
+                ctx.stroke();
+                
+                // Label the grade level - only on the top
+                if (i < gradeLevels) {
+                    const grade = gradeBands[gradeLevels - i - 1];
+                    ctx.fillStyle = '#666';
+                    ctx.font = '10px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(grade.title.split(' ')[0], centerX, centerY - levelRadius - 5);
+                }
             }
             
-            // Close compare modal
-            function closeCompareModal() {
-                compareModal.style.display = 'none';
-                compareModal.setAttribute('aria-hidden', 'true');
-                // Return focus to the button that opened the modal
-                compareProfilesBtn.focus();
+            // Draw axes
+            for (let i = 0; i < numAxes; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = '#aaa';
+                ctx.stroke();
+                
+                // Label the axis with just the LO number
+                const labelX = centerX + (radius + 20) * Math.cos(angle);
+                const labelY = centerY + (radius + 20) * Math.sin(angle);
+                
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Just use LO1, LO2, etc.
+                ctx.fillText(`LO${i+1}`, labelX, labelY);
             }
-        });
-    </script>
+            
+            // Plot data points
+            const dataPoints = [];
+            
+            for (let i = 0; i < numAxes; i++) {
+                const outcome = learningOutcomes[i];
+                const gradeId = performanceLevels[outcome.id].bandId;
+                const gradeIndex = gradeBands.findIndex(g => g.id === gradeId);
+                
+                // Reverse the index since highest grades are on the outside
+                const reversedIndex = gradeBands.length - gradeIndex - 1;
+                
+                const pointRadius = radiusStep * (reversedIndex + 0.5);
+                const angle = i * angleStep - Math.PI / 2;
+                const x = centerX + pointRadius * Math.cos(angle);
+                const y = centerY + pointRadius * Math.sin(angle);
+                
+                dataPoints.push({ x, y });
+            }
+            
+            // Draw the shape
+            ctx.beginPath();
+            ctx.moveTo(dataPoints[0].x, dataPoints[0].y);
+            
+            for (let i = 1; i < dataPoints.length; i++) {
+                ctx.lineTo(dataPoints[i].x, dataPoints[i].y);
+            }
+            
+            ctx.lineTo(dataPoints[0].x, dataPoints[0].y);
+            ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw data points
+            dataPoints.forEach((point, index) => {
+                const outcome = learningOutcomes[index];
+                const gradeId = performanceLevels[outcome.id].bandId;
+                const grade = gradeBands.find(g => g.id === gradeId);
+                
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+                ctx.fillStyle = grade.color;
+                ctx.fill();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+        }
+        
+        // Calculate and update average grade
+        function updateAverageGrade() {
+            // Convert percentage strings to numbers
+            const percentages = Object.values(performanceLevels).map(level => 
+                parseFloat(level.percentage.replace('%', ''))
+            );
+            
+            // Calculate simple average
+            const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
+            
+            // Round to nearest step mark (X8, X5, X2, X0)
+            let roundedAverage;
+            if (average % 10 <= 1) roundedAverage = Math.floor(average / 10) * 10;
+            else if (average % 10 <= 3.5) roundedAverage = Math.floor(average / 10) * 10 + 2;
+            else if (average % 10 <= 6.5) roundedAverage = Math.floor(average / 10) * 10 + 5;
+            else if (average % 10 <= 9) roundedAverage = Math.floor(average / 10) * 10 + 8;
+            else roundedAverage = Math.ceil(average / 10) * 10;
+            
+            // Find grade band
+            let gradeBand = null;
+            for (const band of gradeBands) {
+                const rangeNums = band.options.map(o => parseFloat(o.value.replace('%', '')));
+                const minRange = Math.min(...rangeNums);
+                const maxRange = Math.max(...rangeNums);
+                
+                // Special handling for first-plus (85 and above)
+                if (band.id === 'first-plus' && roundedAverage >= 85) {
+                    gradeBand = band;
+                    break;
+                } 
+                // For other bands, check if within range
+                else if (band.id !== 'first-plus') {
+                    const rangeText = band.range.split('-');
+                    if (rangeText.length === 2) {
+                        const min = parseInt(rangeText[0]);
+                        const max = parseInt(rangeText[1]);
+                        if (roundedAverage >= min && roundedAverage <= max) {
+                            gradeBand = band;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (gradeBand) {
+                // Update grade display
+                gradeDisplay.className = '';
+                gradeDisplay.classList.add(gradeBand.id);
+                gradeDisplay.style.backgroundColor = gradeBand.color;
+                
+                // Update with only title and percentage (no letter grade)
+                gradeTitle.textContent = gradeBand.title;
+                numericGrade.textContent = `${roundedAverage}%`;
+                
+                // Update ARIA attributes for accessibility
+                gradeDisplay.setAttribute('aria-label', `Your average grade is ${roundedAverage}%, which is a ${gradeBand.title}`);
+            }
+        }
+        
+        // Update key improvements
+        function updateKeyImprovements() {
+            keyImprovements.innerHTML = '';
+            
+            learningOutcomes.forEach(outcome => {
+                const feedback = outcome.feedback[performanceLevels[outcome.id].bandId];
+                
+                const li = document.createElement('li');
+                li.innerHTML = `<span style="font-weight: 600;">${outcome.title.split(':')[0]}:</span> ${feedback.improvement}`;
+                keyImprovements.appendChild(li);
+            });
+        }
+        
+        // Update detailed feedback
+        function updateDetailedFeedback() {
+            detailedFeedback.innerHTML = '';
+            
+            learningOutcomes.forEach(outcome => {
+                const gradeInfo = performanceLevels[outcome.id];
+                const grade = gradeBands.find(g => g.id === gradeInfo.bandId);
+                const feedback = outcome.feedback[gradeInfo.bandId];
+                
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-md shadow-sm';
+                card.style.backgroundColor = 'white';
+                card.style.padding = '16px';
+                card.style.borderRadius = '2px';
+                card.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+                
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <h3 style="font-weight: bold;">${outcome.title}</h3>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                            <span 
+                                style="padding: 4px 8px; border-radius: 2px; font-size: 0.875rem; font-weight: bold; margin-bottom: 4px; background-color: ${grade.color};"
+                            >
+                                ${grade.title}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="font-size: 0.875rem;">
+                        <div style="margin-bottom: 8px;">
+                            <p class="section-title">Strengths Evidenced in Your Work:</p>
+                            <p>${feedback.strength}</p>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <p class="section-title">Areas for Reflection and Practice:</p>
+                            <p>${feedback.evidence}</p>
+                        </div>
+                        <div>
+                            <p class="section-title">Summary:</p>
+                            <p>${feedback.improvement}</p>
+                        </div>
+                    </div>
+                `;
+                
+                detailedFeedback.appendChild(card);
+            });
+        }
+        
+        // Update overall advice
+        function updateOverallAdvice() {
+            // Calculate average grade to determine advice level
+            const percentages = Object.values(performanceLevels).map(level => 
+                parseFloat(level.percentage.replace('%', ''))
+            );
+            
+            const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
+            
+            // Find grade band
+            let gradeBandId = null;
+            for (const band of gradeBands) {
+                // Special handling for first-plus
+                if (band.id === 'first-plus' && average >= 85) {
+                    gradeBandId = band.id;
+                    break;
+                } 
+                // For other bands
+                else if (band.id !== 'first-plus') {
+                    const rangeText = band.range.split('-');
+                    if (rangeText.length === 2) {
+                        const min = parseInt(rangeText[0]);
+                        const max = parseInt(rangeText[1]);
+                        if (average >= min && average <= max) {
+                            gradeBandId = band.id;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (gradeBandId && overallImprovements[gradeBandId]) {
+                overallAdvice.innerHTML = '';
+                
+                overallImprovements[gradeBandId].forEach(advice => {
+                    const li = document.createElement('li');
+                    li.textContent = advice;
+                    overallAdvice.appendChild(li);
+                });
+            }
+        }
+        // NEW: Save the current profile as a downloadable JSON file with student name
+        function saveProfile() {
+            // Get student name
+            const studentNameInput = document.getElementById('student-name');
+            const studentName = studentNameInput.value.trim() || 'Anonymous Student';
+            
+            // Create a profile object
+            const now = new Date();
+            const dateString = now.toISOString().slice(0, 10);
+            const timeString = now.toTimeString().slice(0, 5);
+            
+            // Calculate average grade for the profile
+            const percentages = Object.values(performanceLevels).map(level => 
+                parseFloat(level.percentage.replace('%', ''))
+            );
+            
+            const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
+            
+            // Round to nearest step mark (X8, X5, X2, X0)
+            let roundedAverage;
+            if (average % 10 <= 1) roundedAverage = Math.floor(average / 10) * 10;
+            else if (average % 10 <= 3.5) roundedAverage = Math.floor(average / 10) * 10 + 2;
+            else if (average % 10 <= 6.5) roundedAverage = Math.floor(average / 10) * 10 + 5;
+            else if (average % 10 <= 9) roundedAverage = Math.floor(average / 10) * 10 + 8;
+            else roundedAverage = Math.ceil(average / 10) * 10;
+            
+            // Find grade band
+            let gradeBandId = null;
+            let gradeBandTitle = '';
+            let letterGrade = '';
+            
+            for (const band of gradeBands) {
+                // Special handling for first-plus
+                if (band.id === 'first-plus' && roundedAverage >= 85) {
+                    gradeBandId = band.id;
+                    gradeBandTitle = band.title;
+                    letterGrade = band.letterGrade;
+                    break;
+                } 
+                // For other bands
+                else if (band.id !== 'first-plus') {
+                    const rangeText = band.range.split('-');
+                    if (rangeText.length === 2) {
+                        const min = parseInt(rangeText[0]);
+                        const max = parseInt(rangeText[1]);
+                        if (roundedAverage >= min && roundedAverage <= max) {
+                            gradeBandId = band.id;
+                            gradeBandTitle = band.title;
+                            letterGrade = band.letterGrade;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            const profile = {
+                id: `profile-${Date.now()}`,
+                studentName: studentName,
+                date: `${dateString} ${timeString}`,
+                performanceLevels: {...performanceLevels},
+                averageGrade: {
+                    bandId: gradeBandId,
+                    bandTitle: gradeBandTitle,
+                    numericValue: roundedAverage,
+                    letterGrade: letterGrade
+                }
+            };
+            
+            // Get existing profiles from localStorage
+            let existingProfiles = [];
+            try {
+                const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
+                if (storedProfiles) {
+                    existingProfiles = JSON.parse(storedProfiles);
+                }
+            } catch (error) {
+                console.error('Error loading saved profiles:', error);
+            }
+            
+            // Add new profile and save to localStorage
+            const updatedProfiles = [profile, ...existingProfiles].slice(0, 10); // Keep only 10 most recent
+            localStorage.setItem('fn4004-assessment-profiles', JSON.stringify(updatedProfiles));
+            
+            // Also save as downloadable file
+            const dataStr = JSON.stringify(profile, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(data
