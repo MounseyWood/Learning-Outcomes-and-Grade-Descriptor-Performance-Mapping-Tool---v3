@@ -6,7 +6,6 @@
     <meta name="description" content="FN4004 Learning Outcomes Assessment Tool - An interactive tool for understanding and tracking progress in learning outcomes">
     <title>FN4004 Design Process 1 - Learning Outcomes Assessment Tool</title>
     
-    <!-- Original CSS styles remain unchanged -->
     <style>
         /* Base accessibility styles */
         :root {
@@ -79,10 +78,13 @@
             font-size: 24px;
         }
         
+        /* Improved image handling based on understanding_grade_descriptors_v4.html */
         .logo {
-            max-height: 150px;
-            margin-bottom: 15px;
-            width: auto;
+            max-width: 320px;
+            margin: 0 auto 15px;
+            height: auto;
+            display: block;
+            object-fit: contain;
         }
         
         /* Getting Started band */
@@ -122,9 +124,9 @@
             flex-shrink: 0;
         }
         
-        /* Note box with better contrast */
+        /* Note box with white background */
         .note-box {
-            background-color: #f9f9f9;
+            background-color: #FFFFFF;
             border-left: 4px solid var(--ksa-yellow);
             padding: 15px;
             margin: 20px 0;
@@ -187,7 +189,6 @@
             border-color: #333;
             font-weight: bold;
         }
-        
         .ku-button {
             display: inline-block;
             background-color: var(--ksa-yellow);
@@ -225,6 +226,7 @@
             border-radius: 2px;
         }
         
+        /* Improved responsive design for grade band containers */
         .grade-band-container {
             margin: 4px;
             border: 1px solid #ddd;
@@ -356,7 +358,6 @@
             z-index: 1000;
             border-radius: 2px;
         }
-        
         /* For improvement analysis */
         .improvement-positive {
             color: #52c41a;
@@ -410,7 +411,7 @@
             }
         }
         
-        /* Student name input styling */
+        /* Improved student name input styling */
         .student-name-container {
             display: flex;
             align-items: center;
@@ -429,6 +430,30 @@
             flex-grow: 1;
             font-family: Arial, Helvetica, sans-serif;
             font-size: 1rem;
+        }
+        
+        /* Improved styling for "How to improve your overall grade" section */
+        .improvement-section {
+            margin-top: 32px;
+            background-color: var(--ku-blue-light);
+            color: var(--ku-logo-white);
+            padding: 24px;
+            border-radius: 2px;
+        }
+        
+        .improvement-section h2,
+        .improvement-section h3 {
+            color: var(--ku-logo-white);
+        }
+        
+        .improvement-section ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .improvement-section li {
+            margin-bottom: 8px;
         }
         
         /* Responsive styles */
@@ -454,14 +479,28 @@
                 grid-column: span 1;
             }
             
+            /* Improved centering for student name on mobile */
             .student-name-container {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center;
+                text-align: center;
             }
             
             .student-name-input {
-                width: 100%;
+                width: 90%;
                 margin-top: 5px;
+            }
+            
+            /* Make grade bounding boxes responsive on smartphones */
+            .grade-bands-wrapper {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .grade-band-container {
+                width: 100%;
+                height: auto;
+                margin: 4px 0;
             }
         }
     </style>
@@ -469,17 +508,12 @@
 <body>
     <!-- Main wrapper for all content with improved aria labeling -->
     <div id="app-wrapper" role="application" aria-label="FN4004 Learning Outcomes Assessment Tool">
-        <!-- Header band -->
+        <!-- Header band with improved image handling -->
         <header class="content-band header-band" role="banner">
             <div class="band-content header-content">
                 <img src="Talk_Performance_Mapping_FN4004.png" alt="FN4004 Performance Mapping Tool" class="logo">
-                <h1 id="page-title">FN4004 Design Process 1 - Learning Outcomes Assessment Tool</h1>
-                <p aria-describedby="page-title">
-                    This tool shows what tutors look for at each grade level and how your work aligns with industry standards. Select your performance level for each learning outcome to receive targeted feedback and practical strategies for improvement that bridge academic assessment with professional fashion practice.
-                </p>
             </div>
         </header>
-        
         <!-- Getting Started band -->
         <section class="content-band getting-started-band" aria-labelledby="getting-started-title">
             <div class="band-content getting-started-content">
@@ -526,18 +560,16 @@
             </div>
         </section>
         
-        <!-- Note box placed outside the blue background for better contrast -->
+        <!-- Note box placed outside the blue background with white background -->
         <section class="content-band" style="background-color: #f9f9f9; padding: 10px 0;">
             <div class="band-content">
                 <div class="note-box" role="note">
                     <p><strong>Note:</strong> Look for Examples and Exemplars of Good Work on your Canvas Module Homepage to help you understand what different grade levels look like in practice.</p>
                 </div>
-                
-                <p><strong>Need help?</strong> Ask your tutor for guidance during tutorials.</p>
             </div>
         </section>
 
-        <!-- NEW: Student Name Input Section -->
+        <!-- Student Name Input Section with improved mobile centering -->
         <section class="content-band" style="background-color: white; padding: 10px 0;">
             <div class="band-content">
                 <div class="student-name-container">
@@ -609,18 +641,17 @@
                         <!-- Detailed feedback cards will be generated here by JavaScript -->
                     </div>
                 </div>
-                
-                <!-- Key Areas for Improvement / Overall Advice section -->
-                <div style="margin-top: 32px; background-color: white; padding: 24px; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <!-- Key Areas for Improvement / Overall Advice section - Now with blue background & white text -->
+                <div id="improvement-section" class="improvement-section">
                     <h2>How to improve your overall grade:</h2>
                     
                     <h3 style="font-weight: 600; margin-top: 16px; margin-bottom: 8px;">Key Areas for Improvement:</h3>
-                    <ul id="key-improvements" style="list-style-type: disc; padding-left: 20px; margin-bottom: 20px;">
+                    <ul id="key-improvements">
                         <!-- Improvement items will be generated here by JavaScript -->
                     </ul>
                     
                     <h3 style="font-weight: 600; margin-top: 16px; margin-bottom: 8px;">Overall Recommendations:</h3>
-                    <ul id="overall-advice" style="list-style-type: disc; padding-left: 20px;">
+                    <ul id="overall-advice">
                         <!-- Overall advice items will be generated here by JavaScript -->
                     </ul>
                 </div>
@@ -631,7 +662,7 @@
                         Save My Assessment Profile
                     </button>
                     
-                    <!-- NEW: Load Profile Button -->
+                    <!-- Load Profile Button -->
                     <button id="load-profile-btn" class="ku-button" aria-label="Load a previously saved assessment profile">
                         Load Previous Assessment
                     </button>
@@ -697,7 +728,7 @@
             </div>
         </main>
 
-        <!-- NEW: Hidden file input for profile upload -->
+        <!-- Hidden file input for profile upload -->
         <input type="file" id="profile-upload" accept=".json" style="display: none;" aria-hidden="true">
         
         <!-- Grade Descriptor Matrix Modal with LO6 added -->
@@ -736,7 +767,7 @@
                                 <td>Limited understanding of how to use research sources for design development.</td>
                                 <td>Very little evidence of research informing design work.</td>
                             </tr>
-                            <tr>
+<tr>
                                 <th scope="row">LO2:<br>Creatively generate, collate and record information appropriate to the design development process.</th>
                                 <td>Exceptional creativity and innovation in generating and documenting design development with expert organization.</td>
                                 <td>Excellent ability to confidently generate creative ideas and record them effectively through the design process.</td>
@@ -1099,7 +1130,6 @@
                 }
             }
         ];
-        
         // Grade bands data with step marking
         const gradeBands = [
             { 
@@ -1252,7 +1282,6 @@
                 'Develop your professional network and industry connections'
             ]
         };
-        
         // Default performance levels
         let performanceLevels = {
             outcome1: { bandId: 'first', percentage: '78%' },
@@ -1352,7 +1381,7 @@
             }
         });
         
-        // NEW: Set up profile load functionality
+        // Set up profile load functionality
         loadProfileBtn.addEventListener('click', () => {
             profileUpload.click();
         });
@@ -1364,7 +1393,6 @@
         
         // Print summary button
         printSummaryBtn.addEventListener('click', printSummary);
-        
         // Initialize the UI components
         function initializeUI() {
             // Create outcome inputs
@@ -1524,7 +1552,6 @@
             // Announce the change
             liveRegion.textContent = `${outcome.title} grade changed to ${band.title}, ${percentage}`;
         }
-        
         // Update UI for a specific outcome
         function updateUI(outcomeId) {
             // Update grade band containers
@@ -1681,7 +1708,6 @@
                 ctx.stroke();
             });
         }
-        
         // Calculate and update average grade
         function updateAverageGrade() {
             // Convert percentage strings to numbers
@@ -1843,7 +1869,7 @@
                 });
             }
         }
-        // NEW: Save the current profile as a downloadable JSON file with student name
+        // Save the current profile as a downloadable JSON file with student name
         function saveProfile() {
             // Get student name
             const studentNameInput = document.getElementById('student-name');
@@ -1975,7 +2001,6 @@
             // Announce the save
             liveRegion.textContent = `Assessment profile for ${studentName} saved successfully as ${filename}. You can now upload this file to your OneDrive to keep track of your progress.`;
         }
-        
         // Check for saved profiles
         function checkSavedProfiles() {
             try {
@@ -1993,7 +2018,7 @@
             }
         }
         
-        // NEW: Handle profile upload functionality
+        // Handle profile upload functionality
         function handleProfileUpload(event) {
             const fileReader = new FileReader();
             const file = event.target.files[0];
@@ -2110,8 +2135,7 @@
             // Announce the load
             liveRegion.textContent = `Previous assessment profile ${filename} loaded successfully. You can now compare your current assessment with this previous one.`;
         }
-        
-        // IMPROVED: Update compare modal with fixed comparison logic
+        // Update compare modal with fixed comparison logic
         function updateCompareModal() {
             const hasProfilesDiv = document.getElementById('has-profiles');
             const noProfilesDiv = document.getElementById('no-profiles');
@@ -2256,11 +2280,11 @@
                                 
                                 // Add appropriate text based on difference
                                 if (Math.abs(difference) < 0.1) {
-                                    li.innerHTML += 'unchanged';
+                                    li.innerHTML += '<span class="improvement-neutral">unchanged</span>';
                                 } else if (difference > 0) {
-                                    li.innerHTML += `<span style="color: #52c41a; font-weight: bold;">improved by ${difference}%</span>`;
+                                    li.innerHTML += `<span class="improvement-positive">improved by ${difference}%</span>`;
                                 } else {
-                                    li.innerHTML += `<span style="color: #f5222d; font-weight: bold;">decreased by ${Math.abs(difference)}%</span>`;
+                                    li.innerHTML += `<span class="improvement-negative">decreased by ${Math.abs(difference)}%</span>`;
                                 }
                                 
                                 improvementList.appendChild(li);
@@ -2277,11 +2301,11 @@
                             li.innerHTML = `<strong>Overall grade:</strong> `;
                             
                             if (Math.abs(difference) < 0.1) {
-                                li.innerHTML += 'unchanged';
+                                li.innerHTML += '<span class="improvement-neutral">unchanged</span>';
                             } else if (difference > 0) {
-                                li.innerHTML += `<span style="color: #52c41a; font-weight: bold;">improved by ${difference}%</span>`;
+                                li.innerHTML += `<span class="improvement-positive">improved by ${difference}%</span>`;
                             } else {
-                                li.innerHTML += `<span style="color: #f5222d; font-weight: bold;">decreased by ${Math.abs(difference)}%</span>`;
+                                li.innerHTML += `<span class="improvement-negative">decreased by ${Math.abs(difference)}%</span>`;
                             }
                             
                             improvementList.appendChild(li);
@@ -2303,8 +2327,7 @@
                 noProfilesDiv.style.display = 'block';
             }
         }
-        
-        // IMPROVED: Print assessment summary with enhanced comparison data
+        // Print assessment summary with enhanced comparison data and matrix on back page
         function printSummary() {
             const printWindow = window.open('', '_blank');
             
@@ -2330,12 +2353,14 @@
             // Find grade band
             let gradeBandId = null;
             let gradeBandTitle = '';
+            let letterGrade = '';
             
             for (const band of gradeBands) {
                 // Special handling for first-plus
                 if (band.id === 'first-plus' && roundedAverage >= 85) {
                     gradeBandId = band.id;
                     gradeBandTitle = band.title;
+                    letterGrade = band.letterGrade;
                     break;
                 } 
                 // For other bands
@@ -2347,6 +2372,7 @@
                         if (roundedAverage >= min && roundedAverage <= max) {
                             gradeBandId = band.id;
                             gradeBandTitle = band.title;
+                            letterGrade = band.letterGrade;
                             break;
                         }
                     }
@@ -2356,285 +2382,272 @@
             // Capture current canvas data for printing
             const chartDataURL = performanceChart.toDataURL('image/png');
             
-            // Get saved profiles for comparison
-            let previousProfiles = [];
-            try {
-                const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
-                if (storedProfiles) {
-                    previousProfiles = JSON.parse(storedProfiles);
-                }
-            } catch (error) {
-                console.error('Error loading saved profiles:', error);
-            }
-            
-            // Create comparison HTML if there are saved profiles
-            let comparisonHTML = '';
-            if (previousProfiles.length > 0) {
-                comparisonHTML = `
-                    <div class="section">
-                        <h3>Comparison with Previous Assessments</h3>
-                        <div class="table-container">
-                            <table class="comparison-table">
-                                <caption>Progress Over Time</caption>
-                                <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Date</th>
-                                        <th>Average Grade</th>
-                                        ${learningOutcomes.map(outcome =>
-                                            `<th>${outcome.title.split(':')[0]}</th>`
-                                        ).join('')}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><strong>${studentName}</strong></td>
-                                        <td><strong>Current</strong></td>
-                                        <td>${roundedAverage}% (${gradeBandTitle})</td>
-                                        ${learningOutcomes.map(outcome => {
-                                            const percentage = performanceLevels[outcome.id].percentage;
-                                            return `<td>${percentage}</td>`;
-                                        }).join('')}
-                                    </tr>
-                                    ${previousProfiles.slice(0, 3).map(profile => `
-                                        <tr>
-                                            <td>${profile.studentName || 'Anonymous Student'}</td>
-                                            <td>${profile.date}</td>
-                                            <td>${profile.averageGrade.numericValue}% (${profile.averageGrade.bandTitle})</td>
-                                            ${learningOutcomes.map(outcome => {
-                                                const levelInfo = profile.performanceLevels[outcome.id];
-                                                return levelInfo ? `<td>${levelInfo.percentage}</td>` : '<td>-</td>';
-                                            }).join('')}
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                        ${previousProfiles.length > 0 ? `
-                            <div class="improvement-analysis">
-                                <h4>Improvement Analysis (compared to ${previousProfiles[0].date})</h4>
-                                <ul>
-                                    ${learningOutcomes.map(outcome => {
-                                        const currentValue = performanceLevels[outcome.id].percentage;
-                                        const currentPercentage = parseFloat(currentValue);
-                                        const previousValue = previousProfiles[0].performanceLevels[outcome.id]?.percentage;
-                                        const previousPercentage = previousValue ? parseFloat(previousValue) : 0;
-                                        const difference = Math.round((currentPercentage - previousPercentage) * 10) / 10;
-                                        
-                                        let changeText;
-                                        if (Math.abs(difference) < 0.1) {
-                                            changeText = 'unchanged';
-                                        } else if (difference > 0) {
-                                            changeText = `improved by ${difference}%`;
-                                        } else {
-                                            changeText = `decreased by ${Math.abs(difference)}%`;
-                                        }
-                                        
-                                        return `<li><strong>${outcome.title.split(':')[0]}:</strong> ${changeText}</li>`;
-                                    }).join('')}
-                                    ${(() => {
-                                        const previousAvg = previousProfiles[0].averageGrade.numericValue;
-                                        const difference = Math.round((roundedAverage - previousAvg) * 10) / 10;
-                                        
-                                        let changeText;
-                                        if (Math.abs(difference) < 0.1) {
-                                            changeText = 'unchanged';
-                                        } else if (difference > 0) {
-                                            changeText = `improved by ${difference}%`;
-                                        } else {
-                                            changeText = `decreased by ${Math.abs(difference)}%`;
-                                        }
-                                        
-                                        return `<li><strong>Overall grade:</strong> ${changeText}</li>`;
-                                    })()}
-                                </ul>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }
-            
-            // Create print content
+            // Create print content - Using landscape orientation and simplified layout for A4
             printWindow.document.write(`
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>FN4004 Assessment Summary</title>
+                    <title>FN4004 Assessment Summary - ${studentName}</title>
                     <style>
+                        @page {
+                            size: A4 landscape;
+                            margin: 1cm;
+                        }
                         body {
                             font-family: Arial, sans-serif;
-                            padding: 20px;
-                            max-width: 800px;
-                            margin: 0 auto;
+                            padding: 0;
+                            margin: 0;
                             line-height: 1.5;
                         }
-                        
+                        .page {
+                            page-break-after: always;
+                            position: relative;
+                            width: 100%;
+                            height: 100%;
+                        }
                         .header {
                             text-align: center;
-                            margin-bottom: 20px;
+                            margin-bottom: 10px;
                             padding-bottom: 10px;
                             border-bottom: 1px solid #ccc;
                         }
-                        
-                        .section {
-                            margin-bottom: 30px;
-                            padding: 15px;
-                            background-color: #f9f9f9;
-                            border: 1px solid #ddd;
-                            border-radius: 4px;
+                        .two-column {
+                            display: flex;
+                            flex-direction: row;
+                            justify-content: space-between;
+                            gap: 20px;
                         }
-                        
+                        .column {
+                            width: 48%;
+                        }
+                        .chart-container {
+                            text-align: center;
+                            margin: 10px 0;
+                        }
                         .summary-box {
                             text-align: center;
-                            margin-bottom: 20px;
+                            margin-bottom: 10px;
                         }
-                        
-                        .outcome {
-                            margin-bottom: 20px;
-                            padding-bottom: 15px;
-                            border-bottom: 1px dashed #eee;
-                        }
-                        
-                        .grade-band {
-                            font-weight: bold;
-                            margin-bottom: 5px;
-                        }
-                        
                         .average-grade {
                             font-size: 24px;
                             font-weight: bold;
-                            margin: 20px 0;
+                            margin: 10px 0;
                         }
-                        
-                        .date {
-                            text-align: right;
-                            font-style: italic;
-                            margin-bottom: 20px;
+                        .improvements {
+                            margin-top: 10px;
                         }
-                        
-                        .chart-container {
-                            text-align: center;
-                            margin: 20px 0;
+                        h2 {
+                            color: #333;
+                            margin-top: 10px;
+                            margin-bottom: 5px;
+                            font-size: 16px;
                         }
-                        
-                        .footer {
-                            margin-top: 30px;
-                            font-size: 12px;
-                            text-align: center;
-                            color: #666;
-                            border-top: 1px solid #eee;
-                            padding-top: 10px;
+                        h3 {
+                            color: #333;
+                            margin-top: 8px;
+                            margin-bottom: 5px;
+                            font-size: 14px;
                         }
-                        
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin: 15px 0;
-                        }
-                        
-                        th, td {
-                            border: 1px solid #ddd;
-                            padding: 8px;
-                            text-align: center;
-                        }
-                        
-                        th {
-                            background-color: #f2f2f2;
-                        }
-                        
-                        caption {
-                            font-weight: bold;
-                            margin-bottom: 10px;
-                            text-align: left;
-                        }
-                        
-                        .table-container {
-                            overflow-x: auto;
-                        }
-                        
-                        .improvement-analysis {
-                            margin-top: 20px;
-                        }
-                        
                         ul {
                             padding-left: 20px;
-                        }
-                        
-                        li {
+                            margin-top: 5px;
                             margin-bottom: 5px;
                         }
-                        
-                        h3, h4 {
-                            color: #333;
-                            margin-top: 0;
+                        li {
+                            margin-bottom: 3px;
+                            font-size: 12px;
                         }
-                        
-                        @media print {
-                            .section {
-                                break-inside: avoid;
-                            }
-                            
-                            body {
-                                padding: 0;
-                                margin: 0;
-                            }
+                        .footer {
+                            font-size: 10px;
+                            text-align: center;
+                            margin-top: 10px;
+                            color: #666;
+                            position: absolute;
+                            bottom: 0;
+                            width: 100%;
                         }
+                        /* Matrix table for back page */
+                        .matrix-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            font-size: 9px;
+                            margin-top: 10px;
+                        }
+                        .matrix-table th, .matrix-table td {
+                            border: 1px solid #ddd;
+                            padding: 5px;
+                            text-align: left;
+                            vertical-align: top;
+                        }
+                        .matrix-table th:first-child {
+                            background-color: #f1f1f1;
+                            font-weight: bold;
+                            width: 20%;
+                        }
+                        .matrix-table tr:first-child th {
+                            text-align: center;
+                            padding: 5px;
+                            color: black;
+                            font-weight: bold;
+                        }
+                        .first-plus { background-color: #80FF80; }
+                        .first { background-color: #BFFF80; }
+                        .upper-second { background-color: #FFFF80; }
+                        .lower-second { background-color: #FFE880; }
+                        .third { background-color: #FFCC80; }
+                        .marginal-fail { background-color: #FF9980; }
+                        .fail { background-color: #FF8080; }
                     </style>
                 </head>
                 <body>
-                    <div class="header">
-                        <h1>FN4004 Design Process 1</h1>
-                        <h2>Assessment Profile Summary for ${studentName}</h2>
-                        <div class="date">Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
-                    </div>
-                    
-                    <div class="section summary-box">
-                        <h3>Overall Assessment</h3>
-                        <div class="average-grade">
-                            ${roundedAverage}% - ${gradeBandTitle}
+                    <!-- Page 1: Assessment Summary -->
+                    <div class="page">
+                        <div class="header">
+                            <h1>FN4004 Design Process 1 - Assessment Profile</h1>
+                            <p>${studentName} | Generated: ${new Date().toLocaleString()}</p>
                         </div>
                         
-                        <div class="chart-container">
-                            <img src="${chartDataURL}" alt="Performance radar chart showing grades across all learning outcomes" style="max-width: 100%; height: auto;">
-                        </div>
-                    </div>
-                    
-                    ${comparisonHTML}
-                    
-                    <div class="section">
-                        <h3>Learning Outcomes Assessment</h3>
-                        
-                        ${learningOutcomes.map(outcome => {
-                            const gradeInfo = performanceLevels[outcome.id];
-                            const grade = gradeBands.find(g => g.id === gradeInfo.bandId);
-                            const feedback = outcome.feedback[gradeInfo.bandId];
-                            
-                            return `
-                                <div class="outcome">
-                                    <h4>${outcome.title}</h4>
-                                    <p>${outcome.description}</p>
-                                    <div class="grade-band">Grade: ${grade.title} (${gradeInfo.percentage})</div>
-                                    <p><strong>Strengths:</strong> ${feedback.strength}</p>
-                                    <p><strong>Areas for Development:</strong> ${feedback.evidence}</p>
-                                    <p><strong>For improvement:</strong> ${feedback.improvement}</p>
+                        <div class="two-column">
+                            <div class="column">
+                                <div class="summary-box">
+                                    <h2>Overall Assessment</h2>
+                                    <div class="average-grade" style="background-color: ${gradeBands.find(b => b.id === gradeBandId).color}; padding: 10px;">
+                                        ${roundedAverage}% - ${gradeBandTitle}
+                                    </div>
                                 </div>
-                            `;
-                        }).join('')}
+                                
+                                <div class="chart-container">
+                                    <img src="${chartDataURL}" alt="Performance radar chart" style="max-width: 100%; height: auto;">
+                                </div>
+                                
+                                <div>
+                                    <h3>Learning Outcomes:</h3>
+                                    <ul style="font-size: 11px; list-style-type: none; padding-left: 0; columns: 2;">
+                                        ${learningOutcomes.map((outcome, i) => 
+                                            `<li><strong>LO${i+1}:</strong> ${outcome.title.split(':')[1].trim()}</li>`
+                                        ).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="column">
+                                <div class="improvements">
+                                    <h2>How to improve your overall grade:</h2>
+                                    
+                                    <h3>Key Areas for Improvement:</h3>
+                                    <ul>
+                                        ${learningOutcomes.map(outcome => {
+                                            const feedback = outcome.feedback[performanceLevels[outcome.id].bandId];
+                                            return `<li><strong>${outcome.title.split(':')[0]}:</strong> ${feedback.improvement}</li>`;
+                                        }).join('')}
+                                    </ul>
+                                    
+                                    <h3>Overall Recommendations:</h3>
+                                    <ul>
+                                        ${overallImprovements[gradeBandId]?.map(advice =>
+                                            `<li>${advice}</li>`
+                                        ).join('') || ''}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="footer">
+                            <p>This assessment summary is for reference only and not an official grade. Page 1 of 2</p>
+                            <p>Kingston School of Art - BA (Hons) Fashion Program – FN4004 Design Process 1</p>
+                            <p>© ${new Date().getFullYear()} Kingston University</p>
+                        </div>
                     </div>
                     
-                    <div class="section">
-                        <h3>How to improve your overall grade:</h3>
-                        <ul>
-                            ${overallImprovements[gradeBandId]?.map(advice =>
-                                `<li>${advice}</li>`
-                            ).join('') || ''}
-                        </ul>
-                    </div>
-                    
-                    <div class="footer">
-                        <p>This assessment summary is for reference only and not an official grade.</p>
-                        <p>Kingston School of Art - BA (Hons) Fashion Program – FN4004 Design Process 1</p>
-                        <p>© ${new Date().getFullYear()} Kingston University</p>
+                    <!-- Page 2: Grade Descriptor Matrix -->
+                    <div class="page">
+                        <div class="header">
+                            <h1>FN4004 Complete Grade Descriptor Matrix</h1>
+                            <p>${studentName} | Generated: ${new Date().toLocaleString()}</p>
+                        </div>
+                        
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Learning Outcomes</th>
+                                    <th scope="col" class="first-plus">Distinction<br>85-100%</th>
+                                    <th scope="col" class="first">First Class<br>70-84%</th>
+                                    <th scope="col" class="upper-second">Upper Second (2:1)<br>60-69%</th>
+                                    <th scope="col" class="lower-second">Lower Second (2:2)<br>50-59%</th>
+                                    <th scope="col" class="third">Third Class<br>40-49%</th>
+                                    <th scope="col" class="marginal-fail">Marginal Fail<br>35-39%</th>
+                                    <th scope="col" class="fail">Fail<br>0-34%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row">LO1:<br>Use research sources as a basis for creative design by exploring, evaluating and originating ideas into contemporary fashion concepts.</th>
+                                    <td>Outstanding and exceptional use of research sources that go far beyond requirements; highly original thinking.</td>
+                                    <td>Excellent use of research sources showing deep understanding and creative application to design development.</td>
+                                    <td>Good ability to use research sources with solid evaluation and critical thinking skills.</td>
+                                    <td>Satisfactory use of research sources with some evidence of evaluation.</td>
+                                    <td>Basic understanding of research sources with limited application to design.</td>
+                                    <td>Limited understanding of how to use research sources for design development.</td>
+                                    <td>Very little evidence of research informing design work.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">LO2:<br>Creatively generate, collate and record information appropriate to the design development process.</th>
+                                    <td>Exceptional creativity and innovation in generating and documenting design development with expert organization.</td>
+                                    <td>Excellent ability to confidently generate creative ideas and record them effectively through the design process.</td>
+                                    <td>Good confidence in generating and recording design ideas with clear progression.</td>
+                                    <td>Satisfactory ability to generate and record design information with some creative elements.</td>
+                                    <td>Basic ability to generate and record design ideas with minimal organization.</td>
+                                    <td>Limited ability to generate or record design information effectively.</td>
+                                    <td>Insufficient evidence of generating or recording design information.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">LO3:<br>Demonstrate an understanding of material qualities and evaluate their application and appropriateness to design outcomes.</th>
+                                    <td>Outstanding understanding of materials with exceptional evaluation skills for innovative applications.</td>
+                                    <td>Excellent understanding of material qualities with very good evaluation skills for design outcomes.</td>
+                                    <td>Good understanding of material qualities with solid evaluation of their design applications.</td>
+                                    <td>Satisfactory understanding of materials with some evaluation of their design applications.</td>
+                                    <td>Basic understanding of materials with limited evaluation of their design applications.</td>
+                                    <td>Limited understanding of materials with very little evaluation.</td>
+                                    <td>Very little evidence of material understanding or evaluation.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">LO4:<br>Advance research into creative concepts that recognise historical and/or ethical and social considerations.</th>
+                                    <td>Exceptional ability to research creative concepts with outstanding recognition of complex historical, ethical, and social contexts.</td>
+                                    <td>Excellent research into creative concepts with strong historical, ethical, and social awareness.</td>
+                                    <td>Good research with clear recognition of historical and ethical considerations.</td>
+                                    <td>Satisfactory research with some recognition of historical and ethical considerations.</td>
+                                    <td>Basic research with limited recognition of historical or ethical considerations.</td>
+                                    <td>Limited research with minimal recognition of historical or ethical considerations.</td>
+                                    <td>Very little evidence of research into historical or ethical considerations.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">LO5:<br>Communicate design outcomes using a variety of traditional and contemporary methods appropriate to professional contexts.</th>
+                                    <td>Outstanding communication of design outcomes using exceptionally skilled and innovative methods suitable for professional contexts.</td>
+                                    <td>Excellent communication of design outcomes using highly skilled traditional and contemporary methods.</td>
+                                    <td>Good communication of design outcomes with skillful use of appropriate methods.</td>
+                                    <td>Satisfactory communication of design outcomes using appropriate methods.</td>
+                                    <td>Basic communication of design outcomes with limited method variety.</td>
+                                    <td>Limited ability to communicate design outcomes effectively.</td>
+                                    <td>Very little evidence of ability to communicate design outcomes.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">LO6:<br>Personal & Professional Development: Planning, time-management, commitment & subject engagement</th>
+                                    <td>Integration of own identity in real or simulated work/subject contexts. Can work highly productively individually, in a team or in a leadership role.</td>
+                                    <td>Takes full responsibility for own learning understanding subject possibilities and requirements. Can work comfortably independently, in a team or as a leader.</td>
+                                    <td>Self-directed reflection and planning process clearly evidenced in the development of work and context of subject possibilities. Works well alone or in a collaborative team.</td>
+                                    <td>Actively working to develop understanding of subject and use process of reflection and effective planning to improve work. Productive working alone or in a team.</td>
+                                    <td>Evidence in awareness of subject and strengths, may lack consistency in applying reflection and planning. Able to work alone or collaboratively.</td>
+                                    <td>Limited awareness of subject, personal strengths or evidence of reflection or planning and application.</td>
+                                    <td>Little or no awareness of subject, personal strengths or evidence of reflection or planning and application.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="footer">
+                            <p>This assessment summary is for reference only and not an official grade. Page 2 of 2</p>
+                            <p>Kingston School of Art - BA (Hons) Fashion Program – FN4004 Design Process 1</p>
+                            <p>© ${new Date().getFullYear()} Kingston University</p>
+                        </div>
                     </div>
                 </body>
                 </html>
@@ -2647,7 +2660,6 @@
                 printWindow.print();
             }, 500);
         }
-        
         // Modal accessibility functions
         function trapFocusInModal(modal) {
             const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
