@@ -1928,4 +1928,774 @@
             
             // Also save as downloadable file
             const dataStr = JSON.stringify(profile, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(data
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `FN4004_Assessment_Profile_${dateString.replace(/-/g, '')}_${studentName.replace(/\s+/g, '_')}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.style.display = 'none';
+            document.body.appendChild(linkElement);
+            linkElement.click();
+            document.body.removeChild(linkElement);
+            
+            // Show success message with student name
+            successMessage.style.display = 'block';
+            const messagePara = successMessage.querySelector('p');
+            if (messagePara) {
+                messagePara.textContent = `Assessment Profile Saved for ${studentName}!`;
+            }
+            
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+            
+            // Enable compare button
+            compareProfilesBtn.disabled = false;
+            compareProfilesBtn.style.opacity = '1';
+            compareProfilesBtn.setAttribute('aria-disabled', 'false');
+            
+            // Announce to screen readers
+            announceProfileSaved(exportFileDefaultName, studentName);
+        }
+        
+        // Helper function to announce profile saving to screen readers
+        function announceProfileSaved(filename, studentName) {
+            // Create a live region if it doesn't exist
+            let liveRegion = document.getElementById('profile-save-announcement');
+            if (!liveRegion) {
+                liveRegion = document.createElement('div');
+                liveRegion.id = 'profile-save-announcement';
+                liveRegion.setAttribute('aria-live', 'polite');
+                liveRegion.setAttribute('class', 'sr-only');
+                document.body.appendChild(liveRegion);
+            }
+            
+            // Announce the save
+            liveRegion.textContent = `Assessment profile for ${studentName} saved successfully as ${filename}. You can now upload this file to your OneDrive to keep track of your progress.`;
+        }
+        
+        // Check for saved profiles
+        function checkSavedProfiles() {
+            try {
+                const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
+                if (storedProfiles) {
+                    const profiles = JSON.parse(storedProfiles);
+                    if (profiles.length > 0) {
+                        compareProfilesBtn.disabled = false;
+                        compareProfilesBtn.style.opacity = '1';
+                        compareProfilesBtn.setAttribute('aria-disabled', 'false');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading saved profiles:', error);
+            }
+        }
+        
+        // NEW: Handle profile upload functionality
+        function handleProfileUpload(event) {
+            const fileReader = new FileReader();
+            const file = event.target.files[0];
+            
+            if (!file) return;
+            
+            fileReader.onload = (e) => {
+                try {
+                    // Parse the file content
+                    const profileData = JSON.parse(e.target.result);
+                    
+                    // Validate the profile data structure
+                    if (!isValidProfile(profileData)) {
+                        throw new Error('Invalid profile format');
+                    }
+                    
+                    // Update the student name field if available in the profile
+                    if (profileData.studentName) {
+                        document.getElementById('student-name').value = profileData.studentName;
+                    }
+                    
+                    // Get existing profiles
+                    let existingProfiles = [];
+                    try {
+                        const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
+                        if (storedProfiles) {
+                            existingProfiles = JSON.parse(storedProfiles);
+                        }
+                    } catch (error) {
+                        console.error('Error loading saved profiles:', error);
+                        existingProfiles = [];
+                    }
+                    
+                    // Check if this profile already exists in localStorage
+                    const profileExists = existingProfiles.some(p => p.id === profileData.id);
+                    
+                    if (!profileExists) {
+                        // Add the loaded profile to localStorage
+                        const updatedProfiles = [profileData, ...existingProfiles].slice(0, 10); // Keep only 10 most recent
+                        localStorage.setItem('fn4004-assessment-profiles', JSON.stringify(updatedProfiles));
+                        
+                        // Enable compare button
+                        compareProfilesBtn.disabled = false;
+                        compareProfilesBtn.style.opacity = '1';
+                        compareProfilesBtn.setAttribute('aria-disabled', 'false');
+                        
+                        // Show success message
+                        successMessage.style.display = 'block';
+                        const messagePara = successMessage.querySelector('p');
+                        if (messagePara) {
+                            messagePara.textContent = 'Previous Assessment Profile Loaded!';
+                        }
+                        
+                        setTimeout(() => {
+                            successMessage.style.display = 'none';
+                        }, 3000);
+                        
+                        // Announce to screen readers
+                        announceProfileLoaded(file.name);
+                    } else {
+                        alert('This profile is already in your saved profiles.');
+                    }
+                } catch (error) {
+                    console.error('Error loading profile:', error);
+                    alert('Could not load profile. Please ensure this is a valid assessment profile file.');
+                }
+                
+                // Reset the file input
+                profileUpload.value = '';
+            };
+            
+            fileReader.readAsText(file);
+        }
+        
+        // Helper function to validate profile structure
+        function isValidProfile(profile) {
+            // Check if the profile has the required properties
+            if (!profile.id || !profile.date || !profile.performanceLevels || !profile.averageGrade) {
+                return false;
+            }
+            
+            // Check if performanceLevels contains data for all learning outcomes
+            const requiredOutcomes = ['outcome1', 'outcome2', 'outcome3', 'outcome4', 'outcome5', 'outcome6'];
+            for (const outcome of requiredOutcomes) {
+                if (!profile.performanceLevels[outcome] ||
+                    !profile.performanceLevels[outcome].bandId ||
+                    !profile.performanceLevels[outcome].percentage) {
+                    return false;
+                }
+            }
+            
+            // Check if averageGrade contains required properties
+            if (!profile.averageGrade.bandId ||
+                !profile.averageGrade.bandTitle ||
+                !profile.averageGrade.numericValue) {
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Helper function to announce profile loading to screen readers
+        function announceProfileLoaded(filename) {
+            // Create a live region if it doesn't exist
+            let liveRegion = document.getElementById('profile-load-announcement');
+            if (!liveRegion) {
+                liveRegion = document.createElement('div');
+                liveRegion.id = 'profile-load-announcement';
+                liveRegion.setAttribute('aria-live', 'polite');
+                liveRegion.setAttribute('class', 'sr-only');
+                document.body.appendChild(liveRegion);
+            }
+            
+            // Announce the load
+            liveRegion.textContent = `Previous assessment profile ${filename} loaded successfully. You can now compare your current assessment with this previous one.`;
+        }
+        
+        // IMPROVED: Update compare modal with fixed comparison logic
+        function updateCompareModal() {
+            const hasProfilesDiv = document.getElementById('has-profiles');
+            const noProfilesDiv = document.getElementById('no-profiles');
+            const progressTable = document.getElementById('progress-table');
+            const improvementList = document.getElementById('improvement-list');
+            const previousDate = document.getElementById('previous-date');
+            
+            try {
+                const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
+                if (storedProfiles) {
+                    const profiles = JSON.parse(storedProfiles);
+                    if (profiles.length > 0) {
+                        // Show profiles content
+                        hasProfilesDiv.style.display = 'block';
+                        noProfilesDiv.style.display = 'none';
+                        
+                        // Create progress table with improved accessibility
+                        let tableHtml = `
+                            <caption class="sr-only">Progress over time showing grade improvements across learning outcomes</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Student</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Average Grade</th>
+                                    ${learningOutcomes.map(outcome => 
+                                        `<th scope="col">${outcome.title.split(':')[0]}</th>`
+                                    ).join('')}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                        `;
+                        
+                        // Calculate current average
+                        const percentages = Object.values(performanceLevels).map(level => 
+                            parseFloat(level.percentage.replace('%', ''))
+                        );
+                        
+                        const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
+                        
+                        // Round to nearest percentage
+                        let roundedAverage = Math.round(average);
+                        
+                        // Find band title
+                        let bandTitle = '';
+                        for (const band of gradeBands) {
+                            if (band.id === 'first-plus' && roundedAverage >= 85) {
+                                bandTitle = band.title;
+                                break;
+                            } else if (band.id !== 'first-plus') {
+                                const rangeText = band.range.split('-');
+                                if (rangeText.length === 2) {
+                                    const min = parseInt(rangeText[0]);
+                                    const max = parseInt(rangeText[1]);
+                                    if (roundedAverage >= min && roundedAverage <= max) {
+                                        bandTitle = band.title;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Get student name
+                        const studentName = document.getElementById('student-name').value.trim() || 'Anonymous Student';
+                        
+                        tableHtml += `
+                                    <td>${studentName}</td>
+                                    <td>Current</td>
+                                    <td>${roundedAverage}% (${bandTitle})</td>
+                        `;
+                        
+                        // Add outcome grades for current assessment
+                        for (const outcome of learningOutcomes) {
+                            const gradeInfo = performanceLevels[outcome.id];
+                            const percentage = parseFloat(gradeInfo.percentage);
+                            const color = gradeBands.find(b => b.id === gradeInfo.bandId).color;
+                            
+                            tableHtml += `
+                                <td style="text-align: center; background-color: ${color};">
+                                    ${Math.round(percentage)}%
+                                </td>
+                            `;
+                        }
+                        
+                        tableHtml += `</tr>`;
+                        
+                        // Add saved profiles
+                        profiles.forEach(profile => {
+                            const profileName = profile.studentName || 'Anonymous Student';
+                            const profileDate = profile.date;
+                            const avgGrade = profile.averageGrade.numericValue;
+                            const avgTitle = profile.averageGrade.bandTitle;
+                            
+                            tableHtml += `
+                                <tr>
+                                    <td>${profileName}</td>
+                                    <td>${profileDate}</td>
+                                    <td>${avgGrade}% (${avgTitle})</td>
+                            `;
+                            
+                            // Add outcome grades
+                            for (const outcome of learningOutcomes) {
+                                const levelInfo = profile.performanceLevels[outcome.id];
+                                if (levelInfo) {
+                                    const percentage = parseFloat(levelInfo.percentage);
+                                    const color = gradeBands.find(b => b.id === levelInfo.bandId).color;
+                                    
+                                    tableHtml += `
+                                        <td style="text-align: center; background-color: ${color};">
+                                            ${Math.round(percentage)}%
+                                        </td>
+                                    `;
+                                } else {
+                                    tableHtml += `<td></td>`;
+                                }
+                            }
+                            
+                            tableHtml += `</tr>`;
+                        });
+                        
+                        tableHtml += `</tbody>`;
+                        progressTable.innerHTML = tableHtml;
+                        
+                        // Create improvement analysis with fixed comparison
+                        if (profiles.length > 0) {
+                            const mostRecentProfile = profiles[0];
+                            previousDate.textContent = `Compared to previous assessment (${mostRecentProfile.date}):`;
+                            
+                            improvementList.innerHTML = '';
+                            
+                            // Create bullet points with learning outcome comparisons
+                            learningOutcomes.forEach((outcome, index) => {
+                                const currentValue = performanceLevels[outcome.id].percentage;
+                                const currentPercentage = parseFloat(currentValue);
+                                const previousValue = mostRecentProfile.performanceLevels[outcome.id]?.percentage;
+                                const previousPercentage = previousValue ? parseFloat(previousValue) : 0;
+                                const difference = Math.round((currentPercentage - previousPercentage) * 10) / 10;
+                                
+                                // Create list item
+                                const li = document.createElement('li');
+                                li.innerHTML = `<strong>${outcome.title.split(':')[0]}:</strong> `;
+                                
+                                // Add appropriate text based on difference
+                                if (Math.abs(difference) < 0.1) {
+                                    li.innerHTML += 'unchanged';
+                                } else if (difference > 0) {
+                                    li.innerHTML += `<span style="color: #52c41a; font-weight: bold;">improved by ${difference}%</span>`;
+                                } else {
+                                    li.innerHTML += `<span style="color: #f5222d; font-weight: bold;">decreased by ${Math.abs(difference)}%</span>`;
+                                }
+                                
+                                improvementList.appendChild(li);
+                            });
+                            
+                            // Overall grade comparison
+                            const currentAvg = roundedAverage;
+                            const previousAvg = mostRecentProfile.averageGrade.numericValue;
+                            const difference = Math.round((currentAvg - previousAvg) * 10) / 10;
+                            
+                            const li = document.createElement('li');
+                            li.style.fontWeight = 'bold';
+                            li.style.marginTop = '10px';
+                            li.innerHTML = `<strong>Overall grade:</strong> `;
+                            
+                            if (Math.abs(difference) < 0.1) {
+                                li.innerHTML += 'unchanged';
+                            } else if (difference > 0) {
+                                li.innerHTML += `<span style="color: #52c41a; font-weight: bold;">improved by ${difference}%</span>`;
+                            } else {
+                                li.innerHTML += `<span style="color: #f5222d; font-weight: bold;">decreased by ${Math.abs(difference)}%</span>`;
+                            }
+                            
+                            improvementList.appendChild(li);
+                        }
+                    } else {
+                        // No profiles
+                        hasProfilesDiv.style.display = 'none';
+                        noProfilesDiv.style.display = 'block';
+                    }
+                } else {
+                    // No profiles
+                    hasProfilesDiv.style.display = 'none';
+                    noProfilesDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading saved profiles:', error);
+                // No profiles
+                hasProfilesDiv.style.display = 'none';
+                noProfilesDiv.style.display = 'block';
+            }
+        }
+        
+        // IMPROVED: Print assessment summary with enhanced comparison data
+        function printSummary() {
+            const printWindow = window.open('', '_blank');
+            
+            if (!printWindow) {
+                alert('Please allow pop-ups to print the assessment summary.');
+                return;
+            }
+            
+            // Get student name
+            const studentNameInput = document.getElementById('student-name');
+            const studentName = studentNameInput.value.trim() || 'Anonymous Student';
+            
+            // Calculate average grade
+            const percentages = Object.values(performanceLevels).map(level => 
+                parseFloat(level.percentage.replace('%', ''))
+            );
+            
+            const average = percentages.reduce((sum, val) => sum + val, 0) / percentages.length;
+            
+            // Round to nearest step mark
+            let roundedAverage = Math.round(average);
+            
+            // Find grade band
+            let gradeBandId = null;
+            let gradeBandTitle = '';
+            
+            for (const band of gradeBands) {
+                // Special handling for first-plus
+                if (band.id === 'first-plus' && roundedAverage >= 85) {
+                    gradeBandId = band.id;
+                    gradeBandTitle = band.title;
+                    break;
+                } 
+                // For other bands
+                else if (band.id !== 'first-plus') {
+                    const rangeText = band.range.split('-');
+                    if (rangeText.length === 2) {
+                        const min = parseInt(rangeText[0]);
+                        const max = parseInt(rangeText[1]);
+                        if (roundedAverage >= min && roundedAverage <= max) {
+                            gradeBandId = band.id;
+                            gradeBandTitle = band.title;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Capture current canvas data for printing
+            const chartDataURL = performanceChart.toDataURL('image/png');
+            
+            // Get saved profiles for comparison
+            let previousProfiles = [];
+            try {
+                const storedProfiles = localStorage.getItem('fn4004-assessment-profiles');
+                if (storedProfiles) {
+                    previousProfiles = JSON.parse(storedProfiles);
+                }
+            } catch (error) {
+                console.error('Error loading saved profiles:', error);
+            }
+            
+            // Create comparison HTML if there are saved profiles
+            let comparisonHTML = '';
+            if (previousProfiles.length > 0) {
+                comparisonHTML = `
+                    <div class="section">
+                        <h3>Comparison with Previous Assessments</h3>
+                        <div class="table-container">
+                            <table class="comparison-table">
+                                <caption>Progress Over Time</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Date</th>
+                                        <th>Average Grade</th>
+                                        ${learningOutcomes.map(outcome =>
+                                            `<th>${outcome.title.split(':')[0]}</th>`
+                                        ).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>${studentName}</strong></td>
+                                        <td><strong>Current</strong></td>
+                                        <td>${roundedAverage}% (${gradeBandTitle})</td>
+                                        ${learningOutcomes.map(outcome => {
+                                            const percentage = performanceLevels[outcome.id].percentage;
+                                            return `<td>${percentage}</td>`;
+                                        }).join('')}
+                                    </tr>
+                                    ${previousProfiles.slice(0, 3).map(profile => `
+                                        <tr>
+                                            <td>${profile.studentName || 'Anonymous Student'}</td>
+                                            <td>${profile.date}</td>
+                                            <td>${profile.averageGrade.numericValue}% (${profile.averageGrade.bandTitle})</td>
+                                            ${learningOutcomes.map(outcome => {
+                                                const levelInfo = profile.performanceLevels[outcome.id];
+                                                return levelInfo ? `<td>${levelInfo.percentage}</td>` : '<td>-</td>';
+                                            }).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        ${previousProfiles.length > 0 ? `
+                            <div class="improvement-analysis">
+                                <h4>Improvement Analysis (compared to ${previousProfiles[0].date})</h4>
+                                <ul>
+                                    ${learningOutcomes.map(outcome => {
+                                        const currentValue = performanceLevels[outcome.id].percentage;
+                                        const currentPercentage = parseFloat(currentValue);
+                                        const previousValue = previousProfiles[0].performanceLevels[outcome.id]?.percentage;
+                                        const previousPercentage = previousValue ? parseFloat(previousValue) : 0;
+                                        const difference = Math.round((currentPercentage - previousPercentage) * 10) / 10;
+                                        
+                                        let changeText;
+                                        if (Math.abs(difference) < 0.1) {
+                                            changeText = 'unchanged';
+                                        } else if (difference > 0) {
+                                            changeText = `improved by ${difference}%`;
+                                        } else {
+                                            changeText = `decreased by ${Math.abs(difference)}%`;
+                                        }
+                                        
+                                        return `<li><strong>${outcome.title.split(':')[0]}:</strong> ${changeText}</li>`;
+                                    }).join('')}
+                                    ${(() => {
+                                        const previousAvg = previousProfiles[0].averageGrade.numericValue;
+                                        const difference = Math.round((roundedAverage - previousAvg) * 10) / 10;
+                                        
+                                        let changeText;
+                                        if (Math.abs(difference) < 0.1) {
+                                            changeText = 'unchanged';
+                                        } else if (difference > 0) {
+                                            changeText = `improved by ${difference}%`;
+                                        } else {
+                                            changeText = `decreased by ${Math.abs(difference)}%`;
+                                        }
+                                        
+                                        return `<li><strong>Overall grade:</strong> ${changeText}</li>`;
+                                    })()}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            // Create print content
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>FN4004 Assessment Summary</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            line-height: 1.5;
+                        }
+                        
+                        .header {
+                            text-align: center;
+                            margin-bottom: 20px;
+                            padding-bottom: 10px;
+                            border-bottom: 1px solid #ccc;
+                        }
+                        
+                        .section {
+                            margin-bottom: 30px;
+                            padding: 15px;
+                            background-color: #f9f9f9;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                        }
+                        
+                        .summary-box {
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .outcome {
+                            margin-bottom: 20px;
+                            padding-bottom: 15px;
+                            border-bottom: 1px dashed #eee;
+                        }
+                        
+                        .grade-band {
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                        }
+                        
+                        .average-grade {
+                            font-size: 24px;
+                            font-weight: bold;
+                            margin: 20px 0;
+                        }
+                        
+                        .date {
+                            text-align: right;
+                            font-style: italic;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .chart-container {
+                            text-align: center;
+                            margin: 20px 0;
+                        }
+                        
+                        .footer {
+                            margin-top: 30px;
+                            font-size: 12px;
+                            text-align: center;
+                            color: #666;
+                            border-top: 1px solid #eee;
+                            padding-top: 10px;
+                        }
+                        
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 15px 0;
+                        }
+                        
+                        th, td {
+                            border: 1px solid #ddd;
+                            padding: 8px;
+                            text-align: center;
+                        }
+                        
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                        
+                        caption {
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                            text-align: left;
+                        }
+                        
+                        .table-container {
+                            overflow-x: auto;
+                        }
+                        
+                        .improvement-analysis {
+                            margin-top: 20px;
+                        }
+                        
+                        ul {
+                            padding-left: 20px;
+                        }
+                        
+                        li {
+                            margin-bottom: 5px;
+                        }
+                        
+                        h3, h4 {
+                            color: #333;
+                            margin-top: 0;
+                        }
+                        
+                        @media print {
+                            .section {
+                                break-inside: avoid;
+                            }
+                            
+                            body {
+                                padding: 0;
+                                margin: 0;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>FN4004 Design Process 1</h1>
+                        <h2>Assessment Profile Summary for ${studentName}</h2>
+                        <div class="date">Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    </div>
+                    
+                    <div class="section summary-box">
+                        <h3>Overall Assessment</h3>
+                        <div class="average-grade">
+                            ${roundedAverage}% - ${gradeBandTitle}
+                        </div>
+                        
+                        <div class="chart-container">
+                            <img src="${chartDataURL}" alt="Performance radar chart showing grades across all learning outcomes" style="max-width: 100%; height: auto;">
+                        </div>
+                    </div>
+                    
+                    ${comparisonHTML}
+                    
+                    <div class="section">
+                        <h3>Learning Outcomes Assessment</h3>
+                        
+                        ${learningOutcomes.map(outcome => {
+                            const gradeInfo = performanceLevels[outcome.id];
+                            const grade = gradeBands.find(g => g.id === gradeInfo.bandId);
+                            const feedback = outcome.feedback[gradeInfo.bandId];
+                            
+                            return `
+                                <div class="outcome">
+                                    <h4>${outcome.title}</h4>
+                                    <p>${outcome.description}</p>
+                                    <div class="grade-band">Grade: ${grade.title} (${gradeInfo.percentage})</div>
+                                    <p><strong>Strengths:</strong> ${feedback.strength}</p>
+                                    <p><strong>Areas for Development:</strong> ${feedback.evidence}</p>
+                                    <p><strong>For improvement:</strong> ${feedback.improvement}</p>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    <div class="section">
+                        <h3>How to improve your overall grade:</h3>
+                        <ul>
+                            ${overallImprovements[gradeBandId]?.map(advice =>
+                                `<li>${advice}</li>`
+                            ).join('') || ''}
+                        </ul>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>This assessment summary is for reference only and not an official grade.</p>
+                        <p>Kingston School of Art - BA (Hons) Fashion Program – FN4004 Design Process 1</p>
+                        <p>© ${new Date().getFullYear()} Kingston University</p>
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // Wait for content to load then print
+            setTimeout(() => {
+                printWindow.print();
+            }, 500);
+        }
+        
+        // Modal accessibility functions
+        function trapFocusInModal(modal) {
+            const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusableElements.length === 0) return;
+            
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            
+            const handleTabKey = (e) => {
+                if (e.key === 'Tab') {
+                    if (e.shiftKey) { // Shift + Tab
+                        if (document.activeElement === firstElement) {
+                            lastElement.focus();
+                            e.preventDefault();
+                        }
+                    } else { // Tab
+                        if (document.activeElement === lastElement) {
+                            firstElement.focus();
+                            e.preventDefault();
+                        }
+                    }
+                }
+            };
+            
+            modal.addEventListener('keydown', handleTabKey);
+            
+            // Return a cleanup function to remove the event listener
+            return () => {
+                modal.removeEventListener('keydown', handleTabKey);
+            };
+        }
+        
+        // Close matrix modal
+        function closeMatrixModal() {
+            matrixModal.style.display = 'none';
+            matrixModal.setAttribute('aria-hidden', 'true');
+            // Return focus to the button that opened the modal
+            matrixButton.focus();
+        }
+        
+        // Close compare modal
+        function closeCompareModal() {
+            compareModal.style.display = 'none';
+            compareModal.setAttribute('aria-hidden', 'true');
+            // Return focus to the button that opened the modal
+            compareProfilesBtn.focus();
+        }
+    });
+</script>
+</body>
+</html>
